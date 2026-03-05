@@ -1,0 +1,58 @@
+name: Publish to pub.dev
+
+on:
+  push:
+    tags:
+      - 'v[0-9]+.[0-9]+.[0-9]+*'   # matches v1.2.3, v1.2.3+1, v1.2.3-beta.1
+
+jobs:
+  publish:
+    name: Publish
+    runs-on: ubuntu-latest
+
+    # Required for OIDC-based trusted publishing on pub.dev.
+    # No PUB_TOKEN secret needed — configure this repo as a trusted
+    # publisher at https://pub.dev/packages/flutter_full_router/admin
+    permissions:
+      id-token: write   # required for OIDC
+      contents: read
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Verify formatting
+        run: dart format --output=none --set-exit-if-changed .
+
+      - name: Analyze
+        run: flutter analyze --fatal-infos
+
+      - name: Run tests
+        run: flutter test --coverage
+
+      - name: Validate pubspec version matches tag
+        run: |
+          TAG="${GITHUB_REF_NAME#v}"          # strip leading 'v'
+          PUBSPEC_VERSION=$(grep '^version:' pubspec.yaml | awk '{print $2}')
+          echo "Tag version   : $TAG"
+          echo "pubspec version: $PUBSPEC_VERSION"
+          if [ "$TAG" != "$PUBSPEC_VERSION" ]; then
+            echo "Version mismatch: tag '$TAG' != pubspec '$PUBSPEC_VERSION'"
+            exit 1
+          fi
+        shell: bash
+
+      - name: Publish (dry-run)
+        run: dart pub publish --dry-run
+
+      - name: Publish
+        run: dart pub publish --force
