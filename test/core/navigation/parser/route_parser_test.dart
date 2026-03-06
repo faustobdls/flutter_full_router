@@ -55,7 +55,79 @@ void main() {
       expect(match.queryParams['sort'], 'asc');
       expect(match.queryParams['page'], '2');
     });
+  });
 
+  group('FFRRouteParser Dynamic Route Tests', () {
+    late FFRRouteParser parser;
 
+    setUp(() {
+      parser = FFRRouteParser([
+        FFRRouteDefinition(
+          id: '01HOM',
+          path: '/home',
+          builder: (context, p, q) => const SizedBox(),
+        ),
+      ]);
+    });
+
+    test('routes getter returns unmodifiable list of current routes', () {
+      expect(parser.routes.length, 1);
+      expect(parser.routes.first.id, '01HOM');
+    });
+
+    test('addRoute() registers a new route and it becomes parseable', () {
+      parser.addRoute(FFRRouteDefinition(
+        id: '02NEW',
+        path: '/new',
+        builder: (context, p, q) => const SizedBox(),
+      ));
+
+      expect(parser.routes.length, 2);
+      final match = parser.parse('/new');
+      expect(match, isNotNull);
+      expect(match!.route.id, '02NEW');
+    });
+
+    test('addRoute() replaces existing route with same id', () {
+      parser.addRoute(FFRRouteDefinition(
+        id: '01HOM',
+        path: '/home-v2',
+        builder: (context, p, q) => const SizedBox(),
+      ));
+
+      expect(parser.routes.length, 1);
+      expect(parser.routes.first.path, '/home-v2');
+    });
+
+    test('addRoutes() registers multiple routes at once', () {
+      parser.addRoutes([
+        FFRRouteDefinition(
+          id: '03A',
+          path: '/a',
+          builder: (context, p, q) => const SizedBox(),
+        ),
+        FFRRouteDefinition(
+          id: '04B',
+          path: '/b',
+          builder: (context, p, q) => const SizedBox(),
+        ),
+      ]);
+
+      expect(parser.routes.length, 3);
+      expect(parser.parse('/a'), isNotNull);
+      expect(parser.parse('/b'), isNotNull);
+    });
+
+    test('removeRoute() removes an existing route by id', () {
+      parser.removeRoute('01HOM');
+
+      expect(parser.routes, isEmpty);
+      expect(parser.parse('/home'), isNull);
+    });
+
+    test('removeRoute() does nothing when id does not exist', () {
+      parser.removeRoute('NONEXISTENT');
+      expect(parser.routes.length, 1);
+    });
   });
 }

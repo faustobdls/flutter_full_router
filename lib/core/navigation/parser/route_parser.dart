@@ -2,9 +2,41 @@ import '../models/route_definition.dart';
 import '../models/route_match.dart';
 
 class FFRRouteParser {
-  final List<FFRRouteDefinition> routes;
+  final List<FFRRouteDefinition> _routes;
 
-  const FFRRouteParser(this.routes);
+  FFRRouteParser(List<FFRRouteDefinition> routes) : _routes = List.of(routes);
+
+  /// Returns an unmodifiable view of the current route definitions.
+  List<FFRRouteDefinition> get routes => List.unmodifiable(_routes);
+
+  /// Adds a single [route] to the route table.
+  ///
+  /// If a route with the same [FFRRouteDefinition.id] already exists,
+  /// it will be replaced.
+  void addRoute(FFRRouteDefinition route) {
+    final index = _routes.indexWhere((r) => r.id == route.id);
+    if (index >= 0) {
+      _routes[index] = route;
+    } else {
+      _routes.add(route);
+    }
+  }
+
+  /// Adds multiple [routes] to the route table.
+  ///
+  /// Routes with duplicate [FFRRouteDefinition.id]s will be replaced.
+  void addRoutes(List<FFRRouteDefinition> routes) {
+    for (final route in routes) {
+      addRoute(route);
+    }
+  }
+
+  /// Removes the route identified by [id] from the route table.
+  ///
+  /// Does nothing if no route with [id] exists.
+  void removeRoute(String id) {
+    _routes.removeWhere((r) => r.id == id);
+  }
 
   /// Parses a given URI string into a [FFRRouteMatch]
   /// Returns null if no route matches.
@@ -13,7 +45,7 @@ class FFRRouteParser {
     final path = uri.path;
     final queryParams = uri.queryParameters;
 
-    for (final route in routes) {
+    for (final route in _routes) {
       final match = _matchRoute(route, path);
       if (match != null) {
         return FFRRouteMatch(
@@ -30,8 +62,6 @@ class FFRRouteParser {
 
     return null;
   }
-
-
 
   /// Attempts to match a [FFRRouteDefinition] against a [path].
   /// Returns a map of extracted path parameters if it matches, or null otherwise.
