@@ -1,6 +1,7 @@
 import 'dart:developer';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_full_router/flutter_full_router.dart';
 import '../main.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -24,16 +25,21 @@ class _HomeScreenState extends State<HomeScreen> {
         title: const Text('Home / Feed'),
         actions: [
           IconButton(
+            icon: const Icon(Icons.code),
+            tooltip: 'GitHub Repos',
+            onPressed: () => FFRNavigator.I.pushNamed('/github/repos'),
+          ),
+          IconButton(
             icon: const Icon(Icons.people),
             tooltip: 'Authors',
-            onPressed: () => globalNavigator.pushNamed('/authors'),
+            onPressed: () => FFRNavigator.I.pushNamed('/authors'),
           ),
           IconButton(
             icon: const Icon(Icons.logout),
             tooltip: 'Logout',
             onPressed: () {
               authState.logout();
-              globalNavigator.pushReplacementNamed('/login');
+              FFRNavigator.I.pushReplacementNamed('/login');
             },
           ),
         ],
@@ -47,7 +53,7 @@ class _HomeScreenState extends State<HomeScreen> {
             title: Text('Post Title #$id'),
             subtitle: const Text('Tap to read more...'),
             trailing: const Icon(Icons.arrow_forward_ios, size: 16),
-            onTap: () => globalNavigator.pushNamed('/post/$id'),
+            onTap: () => FFRNavigator.I.pushNamed('/post/$id'),
           );
         },
       ),

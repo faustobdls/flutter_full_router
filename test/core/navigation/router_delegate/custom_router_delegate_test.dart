@@ -43,59 +43,68 @@ void main() {
     });
 
     testWidgets('build() renders correctly and parses pages', (tester) async {
-      await tester.pumpWidget(MaterialApp.router(
-        routerDelegate: delegate,
-        routeInformationParser: infoParser,
-      ));
+      await tester.pumpWidget(
+        MaterialApp.router(
+          routerDelegate: delegate,
+          routeInformationParser: infoParser,
+        ),
+      );
 
       expect(find.text('Home Page'), findsOneWidget);
     });
 
     testWidgets('pop() is called accurately from Navigator', (tester) async {
-      await tester.pumpWidget(MaterialApp.router(
-        routerDelegate: delegate,
-        routeInformationParser: infoParser,
-      ));
+      await tester.pumpWidget(
+        MaterialApp.router(
+          routerDelegate: delegate,
+          routeInformationParser: infoParser,
+        ),
+      );
 
       navigator.pushNamed('/full'); // Push a new route to enable popping
       await tester.pumpAndSettle();
 
       expect(navigator.stack.length, 2);
-      
+
       await tester.binding.handlePopRoute();
       await tester.pumpAndSettle();
 
       expect(navigator.stack.length, 1);
     });
 
-    testWidgets('Custom Route Types (Dialog and BottomSheet) rendered through App', (tester) async {
-      await tester.pumpWidget(MaterialApp.router(
-        routerDelegate: delegate,
-        routeInformationParser: infoParser,
-      ));
+    testWidgets(
+      'Custom Route Types (Dialog and BottomSheet) rendered through App',
+      (tester) async {
+        await tester.pumpWidget(
+          MaterialApp.router(
+            routerDelegate: delegate,
+            routeInformationParser: infoParser,
+          ),
+        );
 
-      navigator.pushNamed('/modal');
-      await tester.pumpAndSettle();
-      expect(find.text('Modal Body'), findsOneWidget);
+        navigator.pushNamed('/modal');
+        await tester.pumpAndSettle();
+        expect(find.text('Modal Body'), findsOneWidget);
 
-      navigator.pop();
-      await tester.pumpAndSettle();
+        navigator.pop();
+        await tester.pumpAndSettle();
 
-      navigator.pushNamed('/bottom_sheet');
-      await tester.pumpAndSettle();
-      expect(find.text('Bottom Sheet Body'), findsOneWidget);
-    });
-    
+        navigator.pushNamed('/bottom_sheet');
+        await tester.pumpAndSettle();
+        expect(find.text('Bottom Sheet Body'), findsOneWidget);
+      },
+    );
+
     test('currentConfiguration returns last URL', () {
       expect(delegate.currentConfiguration, '/');
       navigator.pushNamed('/modal');
       expect(delegate.currentConfiguration, '/modal');
     });
-    
+
     test('dispose correctly removes listener', () {
       // Create a temporary delegate specifically to test disposal
       final tempDelegate = FFRRouterDelegate(navigator);
-      
+
       // The navigator should have an additional listener while tempDelegate exists
       // Wait, there is no public listener count, so we just verify it doesn't crash on calling dispose
       expect(() => tempDelegate.dispose(), returnsNormally);

@@ -1,7 +1,8 @@
 import 'dart:developer';
 
 import 'package:flutter/material.dart';
-import '../main.dart'; // To access globalNavigator and authState
+import 'package:flutter_full_router/flutter_full_router.dart';
+import '../main.dart'; // To access FFRNavigator.I and authState
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -29,7 +30,7 @@ class _LoginScreenState extends State<LoginScreen> {
               label: const Text('Simulate Login'),
               onPressed: () {
                 authState.login();
-                globalNavigator.pushReplacementNamed('/home');
+                FFRNavigator.I.pushReplacementNamed('/home');
               },
             ),
             SizedBox(height: 16),
@@ -37,7 +38,7 @@ class _LoginScreenState extends State<LoginScreen> {
               icon: const Icon(Icons.login),
               label: const Text('Simulate router error'),
               onPressed: () {
-                globalNavigator.pushReplacementNamed('/about');
+                FFRNavigator.I.pushReplacementNamed('/about');
               },
             ),
           ],

@@ -1,7 +1,7 @@
 import 'dart:developer';
 
 import 'package:flutter/material.dart';
-import '../main.dart';
+import 'package:flutter_full_router/flutter_full_router.dart';
 
 class AuthorScreen extends StatefulWidget {
   final String username;
@@ -38,7 +38,7 @@ class _AuthorScreenState extends State<AuthorScreen> {
             ElevatedButton.icon(
               icon: const Icon(Icons.arrow_back),
               label: const Text('Back to Authors'),
-              onPressed: () => globalNavigator.pop(),
+              onPressed: () => FFRNavigator.I.pop(),
             ),
           ],
         ),

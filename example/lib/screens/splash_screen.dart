@@ -1,7 +1,8 @@
 import 'dart:developer';
 
 import 'package:flutter/material.dart';
-import '../main.dart'; // To access globalNavigator and authState
+import 'package:flutter_full_router/flutter_full_router.dart';
+import '../main.dart'; // To access FFRNavigator.I and authState
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -17,9 +18,9 @@ class _SplashScreenState extends State<SplashScreen> {
     log('[Rendered initState $runtimeType]');
     Future.delayed(const Duration(seconds: 2), () {
       if (authState.isLoggedIn) {
-        globalNavigator.pushReplacementNamed('/home');
+        FFRNavigator.I.pushReplacementNamed('/home');
       } else {
-        globalNavigator.pushReplacementNamed('/login');
+        FFRNavigator.I.pushReplacementNamed('/login');
       }
     });
   }
@@ -35,7 +36,10 @@ class _SplashScreenState extends State<SplashScreen> {
             SizedBox(height: 24),
             CircularProgressIndicator(),
             SizedBox(height: 16),
-            Text('Loading...', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+            Text(
+              'Loading...',
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            ),
           ],
         ),
       ),

@@ -1,11 +1,36 @@
 import 'package:flutter/widgets.dart';
-import '../actions/navigator_action.dart';
+import '../enums/route_type.dart';
 import '../models/route_definition.dart';
 import '../models/route_match.dart';
 import '../parser/route_parser.dart';
 import '../guards/route_guard.dart';
 
 class FFRNavigator extends ChangeNotifier {
+  static FFRNavigator? _instance;
+
+  @visibleForTesting
+  static void clearInstanceForTest() {
+    _instance = null;
+  }
+
+  /// Global instance accessor.
+  ///
+  /// Use `FFRNavigator.I` to access the navigator from anywhere without
+  /// needing to pass the instance as a parameter.
+  ///
+  /// Example:
+  /// ```dart
+  /// FFRNavigator.I.pushNamed('/home');
+  /// ```
+  static FFRNavigator get I {
+    assert(
+      _instance != null,
+      'FFRNavigator has not been initialized. '
+      'Create an FFRNavigator instance before accessing FFRNavigator.I.',
+    );
+    return _instance!;
+  }
+
   final FFRRouteParser parser;
   final FFRRouteGuard? guard;
   final String initialRoute;
@@ -13,7 +38,6 @@ class FFRNavigator extends ChangeNotifier {
   final List<NavigatorObserver> observers;
 
   final List<FFRRouteMatch> _stack = [];
-  final Map<String, FFRNavigatorAction> _actions = {};
 
   List<FFRRouteMatch> get stack => List.unmodifiable(_stack);
   List<FFRRouteMatch> get history => stack;
@@ -24,7 +48,9 @@ class FFRNavigator extends ChangeNotifier {
     this.initialRoute = '/',
     this.notFoundRoute = '/404',
     this.observers = const [],
-  });
+  }) {
+    _instance = this;
+  }
 
   // ---------------------------------------------------------------------------
   // Navigation
@@ -98,6 +124,12 @@ class FFRNavigator extends ChangeNotifier {
         }
       }
 
+      // Action routes: execute the callback and do NOT push to stack.
+      if (match.route.routeType == FFRRouteType.action) {
+        match.route.action?.call(match.pathParams, match.queryParams);
+        return;
+      }
+
       if (replaceAllFlow && !isNotFound) {
         _stack.clear();
       }
@@ -164,46 +196,4 @@ class FFRNavigator extends ChangeNotifier {
     parser.removeRoute(id);
     notifyListeners();
   }
-
-  // ---------------------------------------------------------------------------
-  // Action Registry
-  // ---------------------------------------------------------------------------
-
-  /// Registers a named [action] that can later be triggered via [executeAction].
-  ///
-  /// Actions are arbitrary side-effect callbacks identified by [name].
-  /// Registering an action with an existing name replaces the previous one.
-  ///
-  /// Example:
-  /// ```dart
-  /// navigator.registerAction('logout', (_) async {
-  ///   await authService.signOut();
-  ///   navigator.pushReplacementNamed('/login');
-  /// });
-  /// ```
-  void registerAction(String name, FFRNavigatorAction action) {
-    _actions[name] = action;
-  }
-
-  /// Removes the action identified by [name] from the registry.
-  ///
-  /// Does nothing if no action with [name] is registered.
-  void unregisterAction(String name) {
-    _actions.remove(name);
-  }
-
-  /// Executes the action registered under [name], passing [params] to it.
-  ///
-  /// If no action is registered under [name], this method does nothing.
-  ///
-  /// Example:
-  /// ```dart
-  /// navigator.executeAction('logout', params: {'reason': 'session_expired'});
-  /// ```
-  void executeAction(String name, {Map<String, dynamic> params = const {}}) {
-    _actions[name]?.call(params);
-  }
-
-  /// Returns `true` if an action with [name] is currently registered.
-  bool hasAction(String name) => _actions.containsKey(name);
 }

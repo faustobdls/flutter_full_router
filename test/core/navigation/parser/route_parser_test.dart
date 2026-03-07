@@ -76,11 +76,13 @@ void main() {
     });
 
     test('addRoute() registers a new route and it becomes parseable', () {
-      parser.addRoute(FFRRouteDefinition(
-        id: '02NEW',
-        path: '/new',
-        builder: (context, p, q) => const SizedBox(),
-      ));
+      parser.addRoute(
+        FFRRouteDefinition(
+          id: '02NEW',
+          path: '/new',
+          builder: (context, p, q) => const SizedBox(),
+        ),
+      );
 
       expect(parser.routes.length, 2);
       final match = parser.parse('/new');
@@ -89,11 +91,13 @@ void main() {
     });
 
     test('addRoute() replaces existing route with same id', () {
-      parser.addRoute(FFRRouteDefinition(
-        id: '01HOM',
-        path: '/home-v2',
-        builder: (context, p, q) => const SizedBox(),
-      ));
+      parser.addRoute(
+        FFRRouteDefinition(
+          id: '01HOM',
+          path: '/home-v2',
+          builder: (context, p, q) => const SizedBox(),
+        ),
+      );
 
       expect(parser.routes.length, 1);
       expect(parser.routes.first.path, '/home-v2');

@@ -1,3 +1,6 @@
+import 'dart:convert';
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_full_router/flutter_full_router.dart';
 
@@ -7,6 +10,7 @@ import 'screens/home_screen.dart';
 import 'screens/post_screen.dart';
 import 'screens/authors_screen.dart';
 import 'screens/author_screen.dart';
+import 'screens/github_repos_screen.dart';
 import 'screens/not_found_screen.dart';
 
 // Dummy Authentication State
@@ -28,7 +32,48 @@ class AuthState extends ChangeNotifier {
 // Global AuthState instance
 final authState = AuthState();
 
-late FFRNavigator globalNavigator;
+// GitHub Repos State — populated by the /github/fetch/{username} action route
+class GitHubReposState extends ChangeNotifier {
+  List<Map<String, dynamic>> repos = [];
+  bool loading = false;
+  String? error;
+
+  Future<void> fetchRepos(String username) async {
+    loading = true;
+    error = null;
+    notifyListeners();
+
+    try {
+      final client = HttpClient();
+      final String api =
+          'https://api.github.com/users/$username/repos?sort=updated&per_page=30';
+      final request = await client.getUrl(Uri.parse(api));
+      request.headers.set('Accept', 'application/vnd.github.v3+json');
+      request.headers.set('User-Agent', 'flutter_full_router_example');
+
+      final response = await request.close();
+      final body = await response.transform(utf8.decoder).join();
+
+      if (response.statusCode == 200) {
+        final List<dynamic> data = jsonDecode(body);
+        repos = data.cast<Map<String, dynamic>>();
+        loading = false;
+      } else {
+        error = 'GitHub API returned ${response.statusCode}';
+        loading = false;
+      }
+
+      client.close();
+    } catch (e) {
+      error = e.toString();
+      loading = false;
+    }
+
+    notifyListeners();
+  }
+}
+
+final gitHubReposState = GitHubReposState();
 
 void main() {
   final routes = <FFRRouteDefinition>[
@@ -55,7 +100,8 @@ void main() {
       path: '/post/{id}',
       pathParams: {'id': r'[0-9]+'},
       openFlow: FFROpenFlow.postLogin,
-      builder: (context, pathParams, queryParams) => PostScreen(id: pathParams['id']!),
+      builder: (context, pathParams, queryParams) =>
+          PostScreen(id: pathParams['id']!),
     ),
     FFRRouteDefinition(
       id: '05ATS',
@@ -66,12 +112,43 @@ void main() {
     FFRRouteDefinition(
       id: '06AUT',
       path: '/author/{username}',
-      pathParams: {'username': r'[a-zA-Z0-9_]+'}, // letters, numbers, underscore
+      pathParams: {
+        'username': r'[a-zA-Z0-9_]+',
+      }, // letters, numbers, underscore
       openFlow: FFROpenFlow.postLogin,
-      builder: (context, pathParams, queryParams) => AuthorScreen(username: pathParams['username']!),
+      builder: (context, pathParams, queryParams) =>
+          AuthorScreen(username: pathParams['username']!),
     ),
     FFRRouteDefinition(
-      id: '07ERR',
+      id: '07GIT',
+      path: '/github/repos',
+      openFlow: FFROpenFlow.postLogin,
+      builder: (context, pathParams, queryParams) => const GitHubReposScreen(),
+    ),
+    // Action route: calls GitHub API as a service (no page rendered).
+    FFRRouteDefinition(
+      id: '07GFA',
+      path: '/github/fetch/{username}',
+      pathParams: {'username': r'[a-zA-Z0-9_-]+'},
+      routeType: FFRRouteType.action,
+      openFlow: FFROpenFlow.postLogin,
+      action: (pathParams, queryParams) {
+        gitHubReposState.fetchRepos(pathParams['username'] ?? 'faustobdls');
+      },
+    ),
+    // Action route: executes logout logic (no page rendered).
+    FFRRouteDefinition(
+      id: '08LGO',
+      path: '/logout',
+      routeType: FFRRouteType.action,
+      openFlow: FFROpenFlow.postLogin,
+      action: (pathParams, queryParams) {
+        authState.logout();
+        FFRNavigator.I.pushReplacementNamed('/login');
+      },
+    ),
+    FFRRouteDefinition(
+      id: '09ERR',
       path: '/404',
       openFlow: FFROpenFlow.preLogin,
       builder: (context, pathParams, queryParams) => const NotFoundScreen(),
@@ -79,7 +156,8 @@ void main() {
   ];
 
   String? authGuard(FFRRouteMatch match) {
-    if (match.route.openFlow == FFROpenFlow.postLogin && !authState.isLoggedIn) {
+    if (match.route.openFlow == FFROpenFlow.postLogin &&
+        !authState.isLoggedIn) {
       return '/login';
     }
     if (match.route.openFlow == FFROpenFlow.preLogin && authState.isLoggedIn) {
@@ -92,21 +170,20 @@ void main() {
   }
 
   final parser = FFRRouteParser(routes);
-  
-  globalNavigator = FFRNavigator(
+
+  // Creating the instance automatically sets FFRNavigator.I
+  FFRNavigator(
     parser: parser,
     guard: authGuard,
-    initialRoute: '/', 
+    initialRoute: '/',
     observers: [FFRRouteLogger()],
   );
 
-  runApp(MyApp(navigator: globalNavigator));
+  runApp(const MyApp());
 }
 
 class MyApp extends StatefulWidget {
-  final FFRNavigator navigator;
-
-  const MyApp({super.key, required this.navigator});
+  const MyApp({super.key});
 
   @override
   State<MyApp> createState() => _MyAppState();
@@ -119,7 +196,7 @@ class _MyAppState extends State<MyApp> {
   @override
   void initState() {
     super.initState();
-    delegate = FFRRouterDelegate(widget.navigator);
+    delegate = FFRRouterDelegate(FFRNavigator.I);
     infoParser = const FFRRouteInformationParser();
   }
 

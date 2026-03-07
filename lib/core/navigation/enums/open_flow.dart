@@ -1,5 +1,1 @@
-enum FFROpenFlow {
-  preLogin,
-  inLogin,
-  postLogin,
-}
+enum FFROpenFlow { preLogin, inLogin, postLogin }

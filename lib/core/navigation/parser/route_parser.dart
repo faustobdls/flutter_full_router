@@ -52,10 +52,7 @@ class FFRRouteParser {
           originalUrl: urlString,
           route: route,
           pathParams: match,
-          queryParams: {
-            ...route.queryParams,
-            ...queryParams,
-          },
+          queryParams: {...route.queryParams, ...queryParams},
         );
       }
     }

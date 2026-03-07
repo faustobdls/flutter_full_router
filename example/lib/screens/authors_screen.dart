@@ -1,7 +1,7 @@
 import 'dart:developer';
 
 import 'package:flutter/material.dart';
-import '../main.dart';
+import 'package:flutter_full_router/flutter_full_router.dart';
 
 class AuthorsScreen extends StatefulWidget {
   const AuthorsScreen({super.key});
@@ -11,7 +11,6 @@ class AuthorsScreen extends StatefulWidget {
 }
 
 class _AuthorsScreenState extends State<AuthorsScreen> {
-
   @override
   void initState() {
     super.initState();
@@ -33,7 +32,7 @@ class _AuthorsScreenState extends State<AuthorsScreen> {
             leading: const Icon(Icons.person),
             title: Text('@$username'),
             trailing: const Icon(Icons.chevron_right),
-            onTap: () => globalNavigator.pushNamed('/author/$username'),
+            onTap: () => FFRNavigator.I.pushNamed('/author/$username'),
           );
         },
       ),

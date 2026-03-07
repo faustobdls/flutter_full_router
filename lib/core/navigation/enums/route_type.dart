@@ -1,5 +1,1 @@
-enum FFRRouteType {
-  fullPage,
-  dialog,
-  bottomSheet,
-}
+enum FFRRouteType { fullPage, dialog, bottomSheet, action }
