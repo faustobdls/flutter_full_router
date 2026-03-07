@@ -20,6 +20,8 @@ jobs:
         with:
           # Check out the tag that triggered the workflow
           ref: ${{ github.ref }}
+      - name: Setup Dart (for pub.dev OIDC authentication)
+        uses: dart-lang/setup-dart@v1
 
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
