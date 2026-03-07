@@ -32,13 +32,18 @@ class FFRRouterDelegate extends RouterDelegate<String>
       return const Scaffold(body: Center(child: CircularProgressIndicator()));
     }
 
+    // Action routes are never pushed to the stack, but filter defensively.
+    final pageMatches = navigator.stack
+        .where((m) => m.route.routeType != FFRRouteType.action)
+        .toList();
+
     return Navigator(
       key: navigatorKey,
       observers: navigator.observers,
-      pages: navigator.stack.map((match) {
+      pages: pageMatches.map((match) {
         final key = ValueKey(match.hashCode);
         final name = match.originalUrl;
-        final child = match.route.builder(
+        final child = match.route.builder!(
           context,
           match.pathParams,
           match.queryParams,

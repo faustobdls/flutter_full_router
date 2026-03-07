@@ -1,5 +1,5 @@
 name: flutter_full_router
-description: 'A new Flutter package project.'
+description: 'A powerful, dependency-free navigation engine built from the ground up for Flutter using the native `Router` API. Forget complex third-party routing libraries—FFR gives you total control over your navigation stack, URL parameter extraction, authentication guarding, dynamic named routing, and custom modal/bottom sheet overlays.'
 version: 0.0.1
 homepage:
 

@@ -1,7 +1,8 @@
 import 'dart:developer';
 
 import 'package:flutter/material.dart';
-import '../main.dart';
+import 'package:flutter_full_router/flutter_full_router.dart';
+
 
 class PostScreen extends StatefulWidget {
   final String id;
@@ -34,7 +35,7 @@ class _PostScreenState extends State<PostScreen> {
             ),
             const SizedBox(height: 32),
             ElevatedButton(
-              onPressed: () => globalNavigator.pop(),
+              onPressed: () => FFRNavigator.I.pop(),
               child: const Text('Go Back'),
             ),
           ],

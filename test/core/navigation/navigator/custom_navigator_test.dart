@@ -262,7 +262,7 @@ void main() {
     });
   });
 
-  group('FFRNavigator Action Registry Tests', () {
+  group('FFRNavigator Action Route Tests', () {
     late FFRNavigator nav;
 
     setUp(() {
@@ -273,72 +273,101 @@ void main() {
           openFlow: FFROpenFlow.preLogin,
           builder: (context, p, q) => const SizedBox(),
         ),
+        FFRRouteDefinition(
+          id: '12HOM',
+          path: '/home',
+          openFlow: FFROpenFlow.postLogin,
+          builder: (context, p, q) => const SizedBox(),
+        ),
       ]);
       nav = FFRNavigator(parser: parser);
     });
 
-    test('registerAction() + hasAction() confirms registration', () {
-      expect(nav.hasAction('logout'), isFalse);
+    test('action route executes callback and does NOT push to stack', () {
+      bool actionCalled = false;
+      nav.parser.addRoute(FFRRouteDefinition(
+        id: '20ACT',
+        path: '/do-something',
+        routeType: FFRRouteType.action,
+        action: (pathParams, queryParams) {
+          actionCalled = true;
+        },
+      ));
 
-      nav.registerAction('logout', (_) {});
+      // Navigate to initial route first
+      nav.pushNamed('/login');
+      expect(nav.stack.length, 1);
 
-      expect(nav.hasAction('logout'), isTrue);
+      // Navigate to the action route
+      nav.pushNamed('/do-something');
+
+      // Action was called
+      expect(actionCalled, isTrue);
+      // Stack did NOT grow — action routes are not pushed
+      expect(nav.stack.length, 1);
+      expect(nav.stack.last.route.id, '11LOG');
     });
 
-    test('executeAction() invokes the registered callback with params', () {
-      Map<String, dynamic>? received;
-      nav.registerAction('doSomething', (params) {
-        received = params;
-      });
+    test('action route receives pathParams correctly', () {
+      Map<String, String>? receivedPath;
+      nav.parser.addRoute(FFRRouteDefinition(
+        id: '21ACT',
+        path: '/action/{id}',
+        pathParams: {'id': r'[0-9]+'},
+        routeType: FFRRouteType.action,
+        action: (pathParams, queryParams) {
+          receivedPath = pathParams;
+        },
+      ));
 
-      nav.executeAction('doSomething', params: {'key': 'value', 'count': 42});
+      nav.pushNamed('/login');
+      nav.pushNamed('/action/42');
 
-      expect(received, isNotNull);
-      expect(received!['key'], 'value');
-      expect(received!['count'], 42);
+      expect(receivedPath, isNotNull);
+      expect(receivedPath!['id'], '42');
+      // Stack unchanged
+      expect(nav.stack.length, 1);
     });
 
-    test('executeAction() with no params passes empty map', () {
-      Map<String, dynamic>? received;
-      nav.registerAction('noParams', (params) {
-        received = params;
-      });
+    test('action route receives queryParams correctly', () {
+      Map<String, dynamic>? receivedQuery;
+      nav.parser.addRoute(FFRRouteDefinition(
+        id: '22ACT',
+        path: '/action-query',
+        routeType: FFRRouteType.action,
+        action: (pathParams, queryParams) {
+          receivedQuery = queryParams;
+        },
+      ));
 
-      nav.executeAction('noParams');
+      nav.pushNamed('/login');
+      nav.pushNamed('/action-query', queryParams: {'key': 'value'});
 
-      expect(received, isNotNull);
-      expect(received, isEmpty);
+      expect(receivedQuery, isNotNull);
+      expect(receivedQuery!['key'], 'value');
+      expect(nav.stack.length, 1);
     });
 
-    test('executeAction() does nothing if action is not registered', () {
-      // Should not throw
-      expect(() => nav.executeAction('ghost'), returnsNormally);
-    });
+    test('pushReplacementNamed with action route does not clear stack', () {
+      nav.pushNamed('/login');
+      expect(nav.stack.length, 1);
 
-    test('registerAction() replaces previous action with same name', () {
-      int callCount = 0;
-      nav.registerAction('action', (_) => callCount++);
-      nav.registerAction('action', (_) => callCount += 10);
+      bool actionCalled = false;
+      nav.parser.addRoute(FFRRouteDefinition(
+        id: '23ACT',
+        path: '/replace-action',
+        routeType: FFRRouteType.action,
+        action: (pathParams, queryParams) {
+          actionCalled = true;
+        },
+      ));
 
-      nav.executeAction('action');
+      nav.pushReplacementNamed('/replace-action');
 
-      expect(callCount, 10);
-    });
-
-    test('unregisterAction() removes an action by name', () {
-      bool called = false;
-      nav.registerAction('temp', (_) => called = true);
-      expect(nav.hasAction('temp'), isTrue);
-
-      nav.unregisterAction('temp');
-      expect(nav.hasAction('temp'), isFalse);
-
-      nav.executeAction('temp');
-      expect(called, isFalse);
-    });
-
-    test('unregisterAction() does nothing if action does not exist', () {
-      expect(() => nav.unregisterAction('nonexistent'), returnsNormally);
+      expect(actionCalled, isTrue);
+      // Stack should still have the original route since action doesn't touch it
+      expect(nav.stack.length, 1);
+      expect(nav.stack.last.route.id, '11LOG');
     });
   });
 }
