@@ -4,7 +4,9 @@ class FFRRouteInformationParser extends RouteInformationParser<String> {
   const FFRRouteInformationParser();
 
   @override
-  Future<String> parseRouteInformation(RouteInformation routeInformation) async {
+  Future<String> parseRouteInformation(
+    RouteInformation routeInformation,
+  ) async {
     return routeInformation.uri.toString();
   }
 

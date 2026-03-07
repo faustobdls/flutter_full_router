@@ -32,7 +32,10 @@ class FFRRouteLogger extends NavigatorObserver {
   @override
   void didReplace({Route<dynamic>? newRoute, Route<dynamic>? oldRoute}) {
     if (newRoute?.settings.name != null) {
-      log('Replaced ${oldRoute?.settings.name} with ${newRoute!.settings.name}', name: logPrefix);
+      log(
+        'Replaced ${oldRoute?.settings.name} with ${newRoute!.settings.name}',
+        name: logPrefix,
+      );
     }
   }
 }

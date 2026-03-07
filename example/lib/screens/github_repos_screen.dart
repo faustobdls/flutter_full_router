@@ -80,7 +80,8 @@ class _GitHubReposScreenState extends State<GitHubReposScreen> {
             icon: const Icon(Icons.refresh),
             tooltip: 'Refresh',
             // Refresh via action route
-            onPressed: () => FFRNavigator.I.pushNamed('/github/fetch/faustobdls'),
+            onPressed: () =>
+                FFRNavigator.I.pushNamed('/github/fetch/faustobdls'),
           ),
         ],
       ),
@@ -130,7 +131,8 @@ class _GitHubReposScreenState extends State<GitHubReposScreen> {
                 icon: const Icon(Icons.refresh),
                 label: const Text('Retry'),
                 // Retry via action route
-                onPressed: () => FFRNavigator.I.pushNamed('/github/fetch/faustobdls'),
+                onPressed: () =>
+                    FFRNavigator.I.pushNamed('/github/fetch/faustobdls'),
               ),
             ],
           ),

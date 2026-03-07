@@ -3,7 +3,6 @@ import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:flutter_full_router/flutter_full_router.dart';
 
-
 class AuthorsScreen extends StatefulWidget {
   const AuthorsScreen({super.key});
 
@@ -12,7 +11,6 @@ class AuthorsScreen extends StatefulWidget {
 }
 
 class _AuthorsScreenState extends State<AuthorsScreen> {
-
   @override
   void initState() {
     super.initState();

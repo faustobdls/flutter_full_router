@@ -191,5 +191,4 @@ class FFRNavigator extends ChangeNotifier {
     parser.removeRoute(id);
     notifyListeners();
   }
-
 }

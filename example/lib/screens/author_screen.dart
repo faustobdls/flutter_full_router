@@ -3,7 +3,6 @@ import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:flutter_full_router/flutter_full_router.dart';
 
-
 class AuthorScreen extends StatefulWidget {
   final String username;
   const AuthorScreen({super.key, required this.username});

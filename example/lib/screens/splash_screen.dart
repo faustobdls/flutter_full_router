@@ -36,7 +36,10 @@ class _SplashScreenState extends State<SplashScreen> {
             SizedBox(height: 24),
             CircularProgressIndicator(),
             SizedBox(height: 16),
-            Text('Loading...', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+            Text(
+              'Loading...',
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            ),
           ],
         ),
       ),

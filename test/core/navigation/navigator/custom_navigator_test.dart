@@ -100,10 +100,7 @@ void main() {
         return null;
       }
 
-      final nav = FFRNavigator(
-        parser: parser,
-        guard: myGuard,
-      );
+      final nav = FFRNavigator(parser: parser, guard: myGuard);
 
       // Manual push to home
       nav.pushNamed('/home');
@@ -137,12 +134,15 @@ void main() {
       expect(nav.stack.first.queryParams['user'], 'john');
     });
 
-    test('pushReplacementNamed() with query parameters constructs full URL', () {
-      final nav = FFRNavigator(parser: parser);
-      nav.pushReplacementNamed('/home', queryParams: {'user': 'alice'});
-      expect(nav.stack.length, 1);
-      expect(nav.stack.first.queryParams['user'], 'alice');
-    });
+    test(
+      'pushReplacementNamed() with query parameters constructs full URL',
+      () {
+        final nav = FFRNavigator(parser: parser);
+        nav.pushReplacementNamed('/home', queryParams: {'user': 'alice'});
+        expect(nav.stack.length, 1);
+        expect(nav.stack.first.queryParams['user'], 'alice');
+      },
+    );
 
     test('RouteGuard intercepts route and redirects on replaceAllFlow', () {
       String? myGuard(FFRRouteMatch match) {
@@ -150,10 +150,7 @@ void main() {
         return null;
       }
 
-      final nav = FFRNavigator(
-        parser: parser,
-        guard: myGuard,
-      );
+      final nav = FFRNavigator(parser: parser, guard: myGuard);
 
       // Manual push replacement to home
       nav.pushReplacementNamed('/home');
@@ -190,11 +187,13 @@ void main() {
       bool notified = false;
       nav.addListener(() => notified = true);
 
-      nav.addRoute(FFRRouteDefinition(
-        id: '99NEW',
-        path: '/new-feature',
-        builder: (context, p, q) => const SizedBox(),
-      ));
+      nav.addRoute(
+        FFRRouteDefinition(
+          id: '99NEW',
+          path: '/new-feature',
+          builder: (context, p, q) => const SizedBox(),
+        ),
+      );
 
       expect(notified, isTrue);
       nav.pushNamed('/new-feature');
@@ -203,12 +202,14 @@ void main() {
     });
 
     test('addRoute() replaces route with same id', () {
-      nav.addRoute(FFRRouteDefinition(
-        id: '11LOG',
-        path: '/login-v2',
-        openFlow: FFROpenFlow.preLogin,
-        builder: (context, p, q) => const SizedBox(),
-      ));
+      nav.addRoute(
+        FFRRouteDefinition(
+          id: '11LOG',
+          path: '/login-v2',
+          openFlow: FFROpenFlow.preLogin,
+          builder: (context, p, q) => const SizedBox(),
+        ),
+      );
 
       nav.pushNamed('/login-v2');
       expect(nav.stack.length, 1);
@@ -285,14 +286,16 @@ void main() {
 
     test('action route executes callback and does NOT push to stack', () {
       bool actionCalled = false;
-      nav.parser.addRoute(FFRRouteDefinition(
-        id: '20ACT',
-        path: '/do-something',
-        routeType: FFRRouteType.action,
-        action: (pathParams, queryParams) {
-          actionCalled = true;
-        },
-      ));
+      nav.parser.addRoute(
+        FFRRouteDefinition(
+          id: '20ACT',
+          path: '/do-something',
+          routeType: FFRRouteType.action,
+          action: (pathParams, queryParams) {
+            actionCalled = true;
+          },
+        ),
+      );
 
       // Navigate to initial route first
       nav.pushNamed('/login');
@@ -310,15 +313,17 @@ void main() {
 
     test('action route receives pathParams correctly', () {
       Map<String, String>? receivedPath;
-      nav.parser.addRoute(FFRRouteDefinition(
-        id: '21ACT',
-        path: '/action/{id}',
-        pathParams: {'id': r'[0-9]+'},
-        routeType: FFRRouteType.action,
-        action: (pathParams, queryParams) {
-          receivedPath = pathParams;
-        },
-      ));
+      nav.parser.addRoute(
+        FFRRouteDefinition(
+          id: '21ACT',
+          path: '/action/{id}',
+          pathParams: {'id': r'[0-9]+'},
+          routeType: FFRRouteType.action,
+          action: (pathParams, queryParams) {
+            receivedPath = pathParams;
+          },
+        ),
+      );
 
       nav.pushNamed('/login');
       nav.pushNamed('/action/42');
@@ -331,14 +336,16 @@ void main() {
 
     test('action route receives queryParams correctly', () {
       Map<String, dynamic>? receivedQuery;
-      nav.parser.addRoute(FFRRouteDefinition(
-        id: '22ACT',
-        path: '/action-query',
-        routeType: FFRRouteType.action,
-        action: (pathParams, queryParams) {
-          receivedQuery = queryParams;
-        },
-      ));
+      nav.parser.addRoute(
+        FFRRouteDefinition(
+          id: '22ACT',
+          path: '/action-query',
+          routeType: FFRRouteType.action,
+          action: (pathParams, queryParams) {
+            receivedQuery = queryParams;
+          },
+        ),
+      );
 
       nav.pushNamed('/login');
       nav.pushNamed('/action-query', queryParams: {'key': 'value'});
@@ -353,14 +360,16 @@ void main() {
       expect(nav.stack.length, 1);
 
       bool actionCalled = false;
-      nav.parser.addRoute(FFRRouteDefinition(
-        id: '23ACT',
-        path: '/replace-action',
-        routeType: FFRRouteType.action,
-        action: (pathParams, queryParams) {
-          actionCalled = true;
-        },
-      ));
+      nav.parser.addRoute(
+        FFRRouteDefinition(
+          id: '23ACT',
+          path: '/replace-action',
+          routeType: FFRRouteType.action,
+          action: (pathParams, queryParams) {
+            actionCalled = true;
+          },
+        ),
+      );
 
       nav.pushReplacementNamed('/replace-action');
 

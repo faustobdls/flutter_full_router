@@ -2,25 +2,28 @@ import 'package:flutter/widgets.dart';
 import '../enums/open_flow.dart';
 import '../enums/route_type.dart';
 
-typedef FFRRouteWidgetBuilder = Widget Function(
-  BuildContext context,
-  Map<String, String> pathParams,
-  Map<String, dynamic> queryParams,
-);
+typedef FFRRouteWidgetBuilder =
+    Widget Function(
+      BuildContext context,
+      Map<String, String> pathParams,
+      Map<String, dynamic> queryParams,
+    );
 
 /// Signature for a route-level action callback.
 ///
 /// When a [FFRRouteDefinition] has [routeType] == [FFRRouteType.action],
 /// this function is invoked instead of [builder].
-typedef FFRRouteAction = void Function(
-  Map<String, String> pathParams,
-  Map<String, dynamic> queryParams,
-);
+typedef FFRRouteAction =
+    void Function(
+      Map<String, String> pathParams,
+      Map<String, dynamic> queryParams,
+    );
 
 class FFRRouteDefinition {
   final String id;
   final String path;
   final FFRRouteType routeType;
+
   /// Key: param name (e.g., 'uid'), Value: Regex pattern string (e.g., r'[0-9]+')
   final Map<String, String> pathParams;
   final Map<String, dynamic> queryParams;
@@ -50,7 +53,7 @@ class FFRRouteDefinition {
     this.description = '',
   }) : assert(
          (routeType == FFRRouteType.action && action != null) ||
-         (routeType != FFRRouteType.action && builder != null),
+             (routeType != FFRRouteType.action && builder != null),
          'Action routes must provide an "action" callback. '
          'All other routes must provide a "builder".',
        );

@@ -100,7 +100,8 @@ void main() {
       path: '/post/{id}',
       pathParams: {'id': r'[0-9]+'},
       openFlow: FFROpenFlow.postLogin,
-      builder: (context, pathParams, queryParams) => PostScreen(id: pathParams['id']!),
+      builder: (context, pathParams, queryParams) =>
+          PostScreen(id: pathParams['id']!),
     ),
     FFRRouteDefinition(
       id: '05ATS',
@@ -111,9 +112,12 @@ void main() {
     FFRRouteDefinition(
       id: '06AUT',
       path: '/author/{username}',
-      pathParams: {'username': r'[a-zA-Z0-9_]+'}, // letters, numbers, underscore
+      pathParams: {
+        'username': r'[a-zA-Z0-9_]+',
+      }, // letters, numbers, underscore
       openFlow: FFROpenFlow.postLogin,
-      builder: (context, pathParams, queryParams) => AuthorScreen(username: pathParams['username']!),
+      builder: (context, pathParams, queryParams) =>
+          AuthorScreen(username: pathParams['username']!),
     ),
     FFRRouteDefinition(
       id: '07GIT',
@@ -152,7 +156,8 @@ void main() {
   ];
 
   String? authGuard(FFRRouteMatch match) {
-    if (match.route.openFlow == FFROpenFlow.postLogin && !authState.isLoggedIn) {
+    if (match.route.openFlow == FFROpenFlow.postLogin &&
+        !authState.isLoggedIn) {
       return '/login';
     }
     if (match.route.openFlow == FFROpenFlow.preLogin && authState.isLoggedIn) {
@@ -165,12 +170,12 @@ void main() {
   }
 
   final parser = FFRRouteParser(routes);
-  
+
   // Creating the instance automatically sets FFRNavigator.I
   FFRNavigator(
     parser: parser,
     guard: authGuard,
-    initialRoute: '/', 
+    initialRoute: '/',
     observers: [FFRRouteLogger()],
   );
 

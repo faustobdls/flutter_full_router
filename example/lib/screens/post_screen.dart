@@ -3,7 +3,6 @@ import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:flutter_full_router/flutter_full_router.dart';
 
-
 class PostScreen extends StatefulWidget {
   final String id;
   const PostScreen({super.key, required this.id});
@@ -27,7 +26,11 @@ class _PostScreenState extends State<PostScreen> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(Icons.article, size: 64, color: Theme.of(context).colorScheme.primary),
+            Icon(
+              Icons.article,
+              size: 64,
+              color: Theme.of(context).colorScheme.primary,
+            ),
             const SizedBox(height: 16),
             Text(
               'Post ID: ${widget.id}',
