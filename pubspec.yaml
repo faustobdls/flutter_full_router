@@ -1,6 +1,7 @@
 name: flutter_full_router
 description: 'A powerful, dependency-free navigation engine for Flutter using the native Router API. Complete control over routing, URL parameters, guards, runtime routes, and actions.'
 version: 0.0.1
+homepage: https://faustobdls.dev
 repository: https://github.com/faustobdls/flutter_full_router.git
 
 environment:
