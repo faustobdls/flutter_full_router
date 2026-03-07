@@ -8,6 +8,11 @@ import '../guards/route_guard.dart';
 class FFRNavigator extends ChangeNotifier {
   static FFRNavigator? _instance;
 
+  @visibleForTesting
+  static void clearInstanceForTest() {
+    _instance = null;
+  }
+
   /// Global instance accessor.
   ///
   /// Use `FFRNavigator.I` to access the navigator from anywhere without

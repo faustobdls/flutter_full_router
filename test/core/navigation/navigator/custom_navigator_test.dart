@@ -8,6 +8,7 @@ void main() {
     late List<FFRRouteDefinition> routes;
 
     setUp(() {
+      FFRNavigator.clearInstanceForTest();
       routes = [
         FFRRouteDefinition(
           id: '11LOG',
@@ -29,6 +30,19 @@ void main() {
         ),
       ];
       parser = FFRRouteParser(routes);
+    });
+
+    tearDown(() {
+      FFRNavigator.clearInstanceForTest();
+    });
+
+    test('FFRNavigator.I throws assertion error if not initialized', () {
+      expect(() => FFRNavigator.I, throwsAssertionError);
+    });
+
+    test('FFRNavigator.I returns the active instance', () {
+      final nav = FFRNavigator(parser: parser);
+      expect(FFRNavigator.I, nav);
     });
 
     test('Initial stack is empty', () {
