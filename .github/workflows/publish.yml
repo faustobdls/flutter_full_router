@@ -70,4 +70,4 @@ jobs:
         run: dart pub publish --dry-run
 
       - name: Publish
-        run: dart pub publish --force
+        uses: dart-lang/pub-dev-action@v1
