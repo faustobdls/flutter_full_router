@@ -29,6 +29,9 @@ class FFRRouterDelegate extends RouterDelegate<String>
   @override
   Widget build(BuildContext context) {
     if (navigator.stack.isEmpty) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        navigator.setNewRoutePath(navigator.initialRoute);
+      });
       return const Scaffold(body: Center(child: CircularProgressIndicator()));
     }
 

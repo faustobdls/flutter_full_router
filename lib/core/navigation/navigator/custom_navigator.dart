@@ -137,6 +137,17 @@ class FFRNavigator extends ChangeNotifier {
       _stack.add(match);
       notifyListeners();
     }
+    _ensureNotEmpty();
+  }
+
+  void _ensureNotEmpty() {
+    if (_stack.isEmpty) {
+      final fallback = parser.parse(initialRoute);
+      if (fallback != null && fallback.route.routeType != FFRRouteType.action) {
+        _stack.add(fallback);
+        notifyListeners();
+      }
+    }
   }
 
   /// Pops the top route from the stack if possible.
@@ -147,11 +158,21 @@ class FFRNavigator extends ChangeNotifier {
     }
   }
 
+  /// Removes all routes from the stack.
+  void popAll() {
+    _stack.clear();
+    notifyListeners();
+  }
+
   /// Internal: handles new external routes (like deep links or browser URL changes).
   /// This is used by the FFRRouterDelegate.
-  void setNewRoutePath(String path) {
+  void setNewRoutePath([String? path]) {
     _stack.clear();
-    _pushPath(path);
+    if (path != null) {
+      _pushPath(path);
+    } else {
+      notifyListeners();
+    }
   }
 
   FFRRouteMatch? _fallbackToNotFound() {

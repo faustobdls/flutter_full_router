@@ -57,6 +57,28 @@ void main() {
       expect(nav.stack.first.route.path, '/404');
     });
 
+    test('pushNamed() falls back to initialRoute when notFoundRoute is also unavailable', () {
+      final parserNoFallback = FFRRouteParser([
+        FFRRouteDefinition(
+          id: '11LOG',
+          path: '/login',
+          openFlow: FFROpenFlow.preLogin,
+          builder: (context, p, q) => const SizedBox(),
+        ),
+      ]);
+      FFRNavigator.clearInstanceForTest();
+      final nav = FFRNavigator(
+        parser: parserNoFallback,
+        initialRoute: '/login',
+        notFoundRoute: '/404', // /404 not registered → _fallbackToNotFound returns null
+      );
+
+      nav.pushNamed('/does_not_exist');
+
+      expect(nav.stack.length, 1);
+      expect(nav.stack.first.route.path, '/login');
+    });
+
     test('pushNamed() adds to stack', () {
       final nav = FFRNavigator(parser: parser);
       nav.pushNamed('/home');

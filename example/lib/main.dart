@@ -12,6 +12,7 @@ import 'screens/authors_screen.dart';
 import 'screens/author_screen.dart';
 import 'screens/github_repos_screen.dart';
 import 'screens/not_found_screen.dart';
+import 'screens/stack_clear_demo_screen.dart';
 
 // Dummy Authentication State
 class AuthState extends ChangeNotifier {
@@ -148,7 +149,14 @@ void main() {
       },
     ),
     FFRRouteDefinition(
-      id: '09ERR',
+      id: '09DEM',
+      path: '/stack-clear-demo',
+      openFlow: FFROpenFlow.postLogin,
+      builder: (context, pathParams, queryParams) =>
+          const StackClearDemoScreen(),
+    ),
+    FFRRouteDefinition(
+      id: '10ERR',
       path: '/404',
       openFlow: FFROpenFlow.preLogin,
       builder: (context, pathParams, queryParams) => const NotFoundScreen(),

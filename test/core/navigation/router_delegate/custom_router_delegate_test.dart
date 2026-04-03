@@ -120,5 +120,35 @@ void main() {
       final parser = FFRRouteInformationParser();
       expect(parser, isA<FFRRouteInformationParser>());
     });
+
+    testWidgets('build() navigates to initialRoute when stack is empty', (tester) async {
+      FFRNavigator.clearInstanceForTest();
+      final testRoutes = [
+        FFRRouteDefinition(
+          id: '01HOM',
+          path: '/',
+          builder: (context, p, q) => const Text('Home Page'),
+        ),
+      ];
+      final testParser = FFRRouteParser(testRoutes);
+      final emptyNavigator = FFRNavigator(parser: testParser, initialRoute: '/');
+      final emptyDelegate = FFRRouterDelegate(emptyNavigator);
+      const testInfoParser = FFRRouteInformationParser();
+
+      await tester.pumpWidget(
+        MaterialApp.router(
+          routerDelegate: emptyDelegate,
+          routeInformationParser: testInfoParser,
+        ),
+      );
+
+      // First frame: spinner is shown, post-frame callback is scheduled
+      expect(find.byType(CircularProgressIndicator), findsOneWidget);
+
+      // After pumpAndSettle: post-frame callback fires → setNewRoutePath('/') → stack populated
+      await tester.pumpAndSettle();
+
+      expect(find.text('Home Page'), findsOneWidget);
+    });
   });
 }

@@ -35,6 +35,11 @@ class _HomeScreenState extends State<HomeScreen> {
             onPressed: () => FFRNavigator.I.pushNamed('/authors'),
           ),
           IconButton(
+            icon: const Icon(Icons.layers_clear),
+            tooltip: 'Stack Clear Demo',
+            onPressed: () => FFRNavigator.I.pushNamed('/stack-clear-demo'),
+          ),
+          IconButton(
             icon: const Icon(Icons.logout),
             tooltip: 'Logout',
             onPressed: () {
