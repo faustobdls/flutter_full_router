@@ -188,4 +188,155 @@ FFRNavigator.I.removeRoute('99NEW');
 
 ---
 
+## Local Navigation (Router Outlet)
+
+FFR provides a **local navigation system** inspired by Angular's `RouterOutlet`. This feature enables nested navigation within confined UI containers such as **bottom sheets** and **tab views**, maintaining an isolated navigation stack that shares the global route parser.
+
+### Use Cases
+
+- **Bottom Sheet Navigation**: Navigate between multiple screens within a modal bottom sheet without affecting the main navigation stack.
+- **Tab Navigation**: Each tab can have its own independent navigation history.
+
+### How It Works
+
+The `FFRLocalNavigatorOutlet` widget creates a scoped `FFRLocalNavigator` instance that:
+
+1. **Shares the Global Parser**: Uses the same route definitions from `FFRNavigator.I.parser`
+2. **Maintains Isolated Stack**: Has its own navigation history independent from the global navigator
+3. **Supports Context-Aware Navigation**: Type-restricted to `bottomSheet` or `tab` navigation patterns
+
+### Basic Usage
+
+Define a route that renders a local navigator outlet:
+
+```dart
+FFRRouteDefinition(
+  id: '01BS',
+  path: '/settings',
+  routeType: FFRRouteType.bottomSheet,
+  builder: (context, pathParams, queryParams) => FFRLocalNavigatorOutlet(
+    initialRoute: '/settings/main',
+    navigatorType: FFRRouteType.bottomSheet,
+    builder: (context, localNavigator, currentMatch) {
+      return Scaffold(
+        appBar: AppBar(title: Text('Settings')),
+        body: Center(
+          child: Text('Current: ${currentMatch?.route.path}'),
+        ),
+        bottomNavigationBar: BottomNavigationBar(
+          currentIndex: // derive from currentMatch,
+          onTap: (index) {
+            // Navigate locally within the bottom sheet
+            localNavigator.pushNamed('/settings/profile');
+          },
+          items: const [
+            BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Main'),
+            BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Profile'),
+          ],
+        ),
+      );
+    },
+  ),
+),
+```
+
+### Accessing the Local Navigator
+
+From any child widget within the `FFRLocalNavigatorOutlet` subtree:
+
+```dart
+class SettingsProfileScreen extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    // Access the local navigator
+    final localNav = FFRLocalNavigatorOutlet.of(context);
+    
+    // Get the current route match
+    final currentMatch = FFRLocalNavigatorOutlet.currentMatch(context);
+    
+    return Column(
+      children: [
+        Text('Current: ${currentMatch?.route.path}'),
+        ElevatedButton(
+          onPressed: () {
+            // Navigate within the local context
+            localNav.pushNamed('/settings/privacy');
+          },
+          child: const Text('Go to Privacy'),
+        ),
+        ElevatedButton(
+          onPressed: () {
+            // Pop within local context
+            localNav.pop();
+          },
+          child: const Text('Back'),
+        ),
+        ElevatedButton(
+          onPressed: () {
+            // Signal that the local navigation container should close
+            final shouldExit = localNav.pop(exitLocalNavigation: true);
+            if (shouldExit) {
+              // Dismiss the bottom sheet
+              Navigator.of(context).pop();
+            }
+          },
+          child: const Text('Close Settings'),
+        ),
+      ],
+    );
+  }
+}
+```
+
+### Local Navigator API
+
+The `FFRLocalNavigator` provides similar methods to the global navigator:
+
+```dart
+// Push a route onto the local stack
+localNav.pushNamed('/settings/profile');
+
+// Replace the entire local stack
+localNav.pushReplacementNamed('/settings/main');
+
+// Pop the top route from the local stack
+localNav.pop();
+
+// Pop and signal that the container should exit
+final shouldExit = localNav.pop(exitLocalNavigation: true);
+
+// Clear all routes
+localNav.clear();
+
+// Access current route
+final current = localNav.current;
+
+// Check if can pop
+if (localNav.canPop) {
+  localNav.pop();
+}
+```
+
+### Tab Navigation Example
+
+```dart
+FFRRouteDefinition(
+  id: '02TAB',
+  path: '/dashboard',
+  routeType: FFRRouteType.tab,
+  builder: (context, pathParams, queryParams) => FFRLocalNavigatorOutlet(
+    initialRoute: '/dashboard/overview',
+    navigatorType: FFRRouteType.tab,
+    builder: (context, localNavigator, currentMatch) {
+      return TabbedDashboard(
+        navigator: localNavigator,
+        currentMatch: currentMatch,
+      );
+    },
+  ),
+),
+```
+
+---
+
 Check out the `example/` folder within the package for a comprehensive working demonstration including modals, authentication flows, and parameterized routing.

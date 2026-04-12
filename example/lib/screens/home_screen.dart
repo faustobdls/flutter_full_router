@@ -40,6 +40,11 @@ class _HomeScreenState extends State<HomeScreen> {
             onPressed: () => FFRNavigator.I.pushNamed('/stack-clear-demo'),
           ),
           IconButton(
+            icon: const Icon(Icons.route),
+            tooltip: 'Local Navigator Demo',
+            onPressed: () => FFRNavigator.I.pushNamed('/local-navigator-demo'),
+          ),
+          IconButton(
             icon: const Icon(Icons.logout),
             tooltip: 'Logout',
             onPressed: () {

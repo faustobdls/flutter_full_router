@@ -13,6 +13,8 @@ import 'screens/author_screen.dart';
 import 'screens/github_repos_screen.dart';
 import 'screens/not_found_screen.dart';
 import 'screens/stack_clear_demo_screen.dart';
+import 'screens/local_navigator_demo_screen.dart';
+import 'screens/local_tab_navigator_screen.dart';
 
 // Dummy Authentication State
 class AuthState extends ChangeNotifier {
@@ -156,7 +158,91 @@ void main() {
           const StackClearDemoScreen(),
     ),
     FFRRouteDefinition(
-      id: '10ERR',
+      id: '10LND',
+      path: '/local-navigator-demo',
+      openFlow: FFROpenFlow.postLogin,
+      builder: (context, pathParams, queryParams) =>
+          const LocalNavigatorDemoScreen(),
+    ),
+    FFRRouteDefinition(
+      id: '11LBS',
+      path: '/local-settings/main',
+      routeType: FFRRouteType.bottomSheet,
+      openFlow: FFROpenFlow.postLogin,
+      builder: (context, pathParams, queryParams) => const SizedBox(),
+    ),
+    FFRRouteDefinition(
+      id: '12LBP',
+      path: '/local-settings/profile',
+      routeType: FFRRouteType.bottomSheet,
+      openFlow: FFROpenFlow.postLogin,
+      builder: (context, pathParams, queryParams) => const SizedBox(),
+    ),
+    FFRRouteDefinition(
+      id: '13LPR',
+      path: '/local-settings/privacy',
+      routeType: FFRRouteType.bottomSheet,
+      openFlow: FFROpenFlow.postLogin,
+      builder: (context, pathParams, queryParams) => const SizedBox(),
+    ),
+    FFRRouteDefinition(
+      id: '14LNT',
+      path: '/local-settings/notifications',
+      routeType: FFRRouteType.bottomSheet,
+      openFlow: FFROpenFlow.postLogin,
+      builder: (context, pathParams, queryParams) => const SizedBox(),
+    ),
+    FFRRouteDefinition(
+      id: '15LTB',
+      path: '/local-tabs',
+      openFlow: FFROpenFlow.postLogin,
+      builder: (context, pathParams, queryParams) =>
+          const LocalTabNavigatorScreen(),
+    ),
+    FFRRouteDefinition(
+      id: '16LTH',
+      path: '/local-tab/home',
+      routeType: FFRRouteType.tab,
+      openFlow: FFROpenFlow.postLogin,
+      builder: (context, pathParams, queryParams) => const SizedBox(),
+    ),
+    FFRRouteDefinition(
+      id: '17LTI',
+      path: '/local-tab/home/item',
+      routeType: FFRRouteType.tab,
+      openFlow: FFROpenFlow.postLogin,
+      builder: (context, pathParams, queryParams) => const SizedBox(),
+    ),
+    FFRRouteDefinition(
+      id: '18LTE',
+      path: '/local-tab/explore',
+      routeType: FFRRouteType.tab,
+      openFlow: FFROpenFlow.postLogin,
+      builder: (context, pathParams, queryParams) => const SizedBox(),
+    ),
+    FFRRouteDefinition(
+      id: '19LTC',
+      path: '/local-tab/explore/category',
+      routeType: FFRRouteType.tab,
+      openFlow: FFROpenFlow.postLogin,
+      builder: (context, pathParams, queryParams) => const SizedBox(),
+    ),
+    FFRRouteDefinition(
+      id: '20LTP',
+      path: '/local-tab/profile',
+      routeType: FFRRouteType.tab,
+      openFlow: FFROpenFlow.postLogin,
+      builder: (context, pathParams, queryParams) => const SizedBox(),
+    ),
+    FFRRouteDefinition(
+      id: '21LPE',
+      path: '/local-tab/profile/edit',
+      routeType: FFRRouteType.tab,
+      openFlow: FFROpenFlow.postLogin,
+      builder: (context, pathParams, queryParams) => const SizedBox(),
+    ),
+    FFRRouteDefinition(
+      id: '22ERR',
       path: '/404',
       openFlow: FFROpenFlow.preLogin,
       builder: (context, pathParams, queryParams) => const NotFoundScreen(),
