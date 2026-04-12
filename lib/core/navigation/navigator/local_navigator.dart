@@ -18,13 +18,12 @@ import '../parser/route_parser.dart';
 /// FFRLocalNavigatorOutlet(
 ///   initialRoute: '/settings/profile',
 ///   navigatorType: FFRRouteType.bottomSheet,
-///   child: LocalNavigationBuilder(),
 /// )
 /// ```
 ///
 /// Access the local navigator within children:
 /// ```dart
-/// FFRLocalNavigator.of(context).pushNamed('/settings/privacy');
+/// FFRLocalNavigatorOutlet.of(context).pushNamed('/settings/privacy');
 /// ```
 class FFRLocalNavigator extends ChangeNotifier {
   final FFRRouteParser _parser;
@@ -38,6 +37,7 @@ class FFRLocalNavigator extends ChangeNotifier {
   /// The [navigatorType] must be either [FFRRouteType.bottomSheet] or
   /// [FFRRouteType.tab]. The [initialRoute] is pushed onto the stack
   /// immediately upon creation.
+  ///
   FFRLocalNavigator({
     required FFRRouteParser parser,
     required this.navigatorType,

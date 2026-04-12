@@ -16,6 +16,27 @@ import 'screens/stack_clear_demo_screen.dart';
 import 'screens/bottomsheet_navigator_demo_screen.dart';
 import 'screens/tab_navigator_demo_screen.dart';
 import 'screens/dialog_navigator_demo_screen.dart';
+export 'screens/bottomsheet_navigator_demo_screen.dart'
+    show
+        DefaultBottomSheetContent,
+        CustomBottomSheetContent,
+        SettingsMainScreen,
+        ProfileSettingsScreen,
+        PrivacySettingsScreen,
+        NotificationSettingsScreen,
+        AvatarSettingsScreen,
+        BlockedUsersScreen,
+        NotificationChannelsScreen,
+        AvatarCropScreen,
+        AvatarFiltersScreen;
+export 'screens/tab_navigator_demo_screen.dart'
+    show
+        HomeTabScreen,
+        HomeItemDetailScreen,
+        ExploreTabScreen,
+        ExploreCategoryScreen,
+        ProfileTabScreen,
+        ProfileEditScreen;
 
 // Dummy Authentication State
 class AuthState extends ChangeNotifier {
@@ -159,8 +180,26 @@ void main() {
           const StackClearDemoScreen(),
     ),
     // Local Navigator Demos
+    // BottomSheet routes - opened via pushNamed
     FFRRouteDefinition(
       id: '10BSD',
+      path: '/bottomsheet-default',
+      routeType: FFRRouteType.bottomSheet,
+      openFlow: FFROpenFlow.postLogin,
+      builder: (context, pathParams, queryParams) =>
+          const DefaultBottomSheetContent(),
+    ),
+    FFRRouteDefinition(
+      id: '11BSC',
+      path: '/bottomsheet-custom',
+      routeType: FFRRouteType.bottomSheet,
+      openFlow: FFROpenFlow.postLogin,
+      builder: (context, pathParams, queryParams) =>
+          const CustomBottomSheetContent(),
+    ),
+    // BottomSheet demo screen entry point
+    FFRRouteDefinition(
+      id: '12DEM',
       path: '/bottomsheet-demo',
       openFlow: FFROpenFlow.postLogin,
       builder: (context, pathParams, queryParams) =>
@@ -180,67 +219,110 @@ void main() {
       builder: (context, pathParams, queryParams) =>
           const DialogNavigatorDemoScreen(),
     ),
-    // BottomSheet local routes
+    // BottomSheet local routes - Level 1
     FFRRouteDefinition(
       id: '13LBS',
       path: '/local-settings/main',
       openFlow: FFROpenFlow.postLogin,
-      builder: (context, pathParams, queryParams) => const SizedBox(),
+      builder: (context, pathParams, queryParams) => const SettingsMainScreen(),
     ),
+    // Level 2
     FFRRouteDefinition(
       id: '14LBP',
       path: '/local-settings/profile',
       openFlow: FFROpenFlow.postLogin,
-      builder: (context, pathParams, queryParams) => const SizedBox(),
+      builder: (context, pathParams, queryParams) =>
+          const ProfileSettingsScreen(),
     ),
     FFRRouteDefinition(
       id: '15LPR',
       path: '/local-settings/privacy',
       openFlow: FFROpenFlow.postLogin,
-      builder: (context, pathParams, queryParams) => const SizedBox(),
+      builder: (context, pathParams, queryParams) =>
+          const PrivacySettingsScreen(),
     ),
     FFRRouteDefinition(
       id: '16LNT',
       path: '/local-settings/notifications',
       openFlow: FFROpenFlow.postLogin,
-      builder: (context, pathParams, queryParams) => const SizedBox(),
+      builder: (context, pathParams, queryParams) =>
+          const NotificationSettingsScreen(),
+    ),
+    // Level 3
+    FFRRouteDefinition(
+      id: '17LAV',
+      path: '/local-settings/profile/avatar',
+      openFlow: FFROpenFlow.postLogin,
+      builder: (context, pathParams, queryParams) =>
+          const AvatarSettingsScreen(),
+    ),
+    FFRRouteDefinition(
+      id: '18LBL',
+      path: '/local-settings/privacy/blocked',
+      openFlow: FFROpenFlow.postLogin,
+      builder: (context, pathParams, queryParams) =>
+          const BlockedUsersScreen(),
+    ),
+    FFRRouteDefinition(
+      id: '19LCH',
+      path: '/local-settings/notifications/channels',
+      openFlow: FFROpenFlow.postLogin,
+      builder: (context, pathParams, queryParams) =>
+          const NotificationChannelsScreen(),
+    ),
+    // Level 4
+    FFRRouteDefinition(
+      id: '20LCR',
+      path: '/local-settings/profile/avatar/crop',
+      openFlow: FFROpenFlow.postLogin,
+      builder: (context, pathParams, queryParams) => const AvatarCropScreen(),
+    ),
+    FFRRouteDefinition(
+      id: '21LFL',
+      path: '/local-settings/profile/avatar/filters',
+      openFlow: FFROpenFlow.postLogin,
+      builder: (context, pathParams, queryParams) =>
+          const AvatarFiltersScreen(),
     ),
     // Tab local routes
     FFRRouteDefinition(
-      id: '17LTH',
+      id: '22LTH',
       path: '/local-tab/home',
       openFlow: FFROpenFlow.postLogin,
-      builder: (context, pathParams, queryParams) => const SizedBox(),
+      builder: (context, pathParams, queryParams) => const HomeTabScreen(),
     ),
     FFRRouteDefinition(
-      id: '18LTI',
+      id: '23LTI',
       path: '/local-tab/home/item',
       openFlow: FFROpenFlow.postLogin,
-      builder: (context, pathParams, queryParams) => const SizedBox(),
+      builder: (context, pathParams, queryParams) =>
+          const HomeItemDetailScreen(),
     ),
     FFRRouteDefinition(
-      id: '19LTE',
+      id: '24LTE',
       path: '/local-tab/explore',
       openFlow: FFROpenFlow.postLogin,
-      builder: (context, pathParams, queryParams) => const SizedBox(),
+      builder: (context, pathParams, queryParams) => const ExploreTabScreen(),
     ),
     FFRRouteDefinition(
-      id: '20LTC',
+      id: '25LTC',
       path: '/local-tab/explore/category',
       openFlow: FFROpenFlow.postLogin,
-      builder: (context, pathParams, queryParams) => const SizedBox(),
+      builder: (context, pathParams, queryParams) =>
+          const ExploreCategoryScreen(),
     ),
     FFRRouteDefinition(
-      id: '21LTP',
+      id: '26LTP',
       path: '/local-tab/profile',
       openFlow: FFROpenFlow.postLogin,
-      builder: (context, pathParams, queryParams) => const SizedBox(),
+      builder: (context, pathParams, queryParams) => const ProfileTabScreen(),
     ),
     FFRRouteDefinition(
-      id: '22LPE',
+      id: '27LPE',
       path: '/local-tab/profile/edit',
       openFlow: FFROpenFlow.postLogin,
-      builder: (context, pathParams, queryParams) => const SizedBox(),
+      builder: (context, pathParams, queryParams) =>
+          const ProfileEditScreen(),
     ),
     FFRRouteDefinition(
       id: '23ERR',

@@ -12,3 +12,4 @@ export 'core/navigation/guards/route_guard.dart';
 export 'core/navigation/router_delegate/custom_route_information_parser.dart';
 export 'core/navigation/router_delegate/custom_router_delegate.dart';
 export 'core/navigation/observers/route_logger.dart';
+export 'core/navigation/transitions/page_transitions.dart';

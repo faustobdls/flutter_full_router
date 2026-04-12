@@ -43,21 +43,18 @@ class _TabNavigatorDemoScreenState extends State<TabNavigatorDemoScreen>
       ),
       body: TabBarView(
         controller: _tabController,
-        children: const [
-          _TabNavigatorContent(
+        children: [
+          _TabWithProvider(
             initialRoute: '/local-tab/home',
             accentColor: Colors.blue,
-            tabTitle: 'Home',
           ),
-          _TabNavigatorContent(
+          _TabWithProvider(
             initialRoute: '/local-tab/explore',
             accentColor: Colors.green,
-            tabTitle: 'Explore',
           ),
-          _TabNavigatorContent(
+          _TabWithProvider(
             initialRoute: '/local-tab/profile',
             accentColor: Colors.purple,
-            tabTitle: 'Profile',
           ),
         ],
       ),
@@ -65,134 +62,58 @@ class _TabNavigatorDemoScreenState extends State<TabNavigatorDemoScreen>
   }
 }
 
-class _TabNavigatorContent extends StatelessWidget {
+class _TabWithProvider extends StatelessWidget {
   final String initialRoute;
   final Color accentColor;
-  final String tabTitle;
 
-  const _TabNavigatorContent({
+  const _TabWithProvider({
     required this.initialRoute,
     required this.accentColor,
-    required this.tabTitle,
   });
 
   @override
   Widget build(BuildContext context) {
-    return FFRLocalNavigatorOutlet(
-      key: ValueKey(initialRoute),
-      initialRoute: initialRoute,
-      navigatorType: FFRRouteType.tab,
-      builder: (context, localNavigator, currentMatch) {
-        return _TabLocalNavigator(
-          localNavigator: localNavigator,
-          currentMatch: currentMatch,
-          accentColor: accentColor,
-          tabTitle: tabTitle,
-        );
-      },
-    );
-  }
-}
-
-class _TabLocalNavigator extends StatelessWidget {
-  final FFRLocalNavigator localNavigator;
-  final FFRRouteMatch? currentMatch;
-  final Color accentColor;
-  final String tabTitle;
-
-  const _TabLocalNavigator({
-    required this.localNavigator,
-    required this.currentMatch,
-    required this.accentColor,
-    required this.tabTitle,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      body: _buildContent(context),
-      floatingActionButton: localNavigator.canPop
-          ? FloatingActionButton.extended(
-              onPressed: () => localNavigator.pop(),
-              icon: const Icon(Icons.arrow_back),
-              label: const Text('Back'),
-              backgroundColor: accentColor,
-            )
-          : null,
-    );
-  }
-
-  Widget _buildContent(BuildContext context) {
-    final path = currentMatch?.route.path;
-
-    if (path == null) {
-      return Center(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(Icons.help_outline, size: 64, color: accentColor),
-            const SizedBox(height: 16),
-            Text(
-              'No route matched in $tabTitle tab',
-              style: TextStyle(color: accentColor, fontSize: 18),
-            ),
-          ],
-        ),
-      );
-    }
-
-    // Home tab routes
-    if (path == '/local-tab/home') {
-      return _HomeTabContent(accentColor: accentColor);
-    }
-    if (path == '/local-tab/home/item') {
-      return _HomeItemDetailContent(accentColor: accentColor);
-    }
-
-    // Explore tab routes
-    if (path == '/local-tab/explore') {
-      return _ExploreTabContent(accentColor: accentColor);
-    }
-    if (path == '/local-tab/explore/category') {
-      return _ExploreCategoryContent(accentColor: accentColor);
-    }
-
-    // Profile tab routes
-    if (path == '/local-tab/profile') {
-      return _ProfileTabContent(accentColor: accentColor);
-    }
-    if (path == '/local-tab/profile/edit') {
-      return _ProfileEditContent(accentColor: accentColor);
-    }
-
-    return Center(
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(Icons.error_outline, size: 64, color: accentColor),
-          const SizedBox(height: 16),
-          Text(
-            'Unknown route: $path',
-            style: TextStyle(color: accentColor, fontSize: 18),
-          ),
-        ],
+    return _AccentColorProvider(
+      color: accentColor,
+      child: FFRLocalNavigatorOutlet(
+        key: ValueKey(initialRoute),
+        initialRoute: initialRoute,
+        navigatorType: FFRRouteType.tab,
       ),
     );
   }
 }
 
+class _AccentColorProvider extends InheritedWidget {
+  final Color color;
+
+  const _AccentColorProvider({
+    required this.color,
+    required super.child,
+  });
+
+  static Color of(BuildContext context) {
+    final provider = context.dependOnInheritedWidgetOfExactType<_AccentColorProvider>();
+    return provider?.color ?? Colors.blue;
+  }
+
+  @override
+  bool updateShouldNotify(_AccentColorProvider oldWidget) {
+    return color != oldWidget.color;
+  }
+}
+
 // ============================================================================
-// Home Tab Content
+// Home Tab
 // ============================================================================
 
-class _HomeTabContent extends StatelessWidget {
-  final Color accentColor;
-
-  const _HomeTabContent({required this.accentColor});
+class HomeTabScreen extends StatelessWidget {
+  const HomeTabScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
     final localNavigator = FFRLocalNavigatorOutlet.of(context);
+    final accentColor = _AccentColorProvider.of(context);
 
     return ListView(
       children: [
@@ -227,14 +148,13 @@ class _HomeTabContent extends StatelessWidget {
   }
 }
 
-class _HomeItemDetailContent extends StatelessWidget {
-  final Color accentColor;
-
-  const _HomeItemDetailContent({required this.accentColor});
+class HomeItemDetailScreen extends StatelessWidget {
+  const HomeItemDetailScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
     final localNavigator = FFRLocalNavigatorOutlet.of(context);
+    final accentColor = _AccentColorProvider.of(context);
 
     return ListView(
       children: [
@@ -275,17 +195,16 @@ class _HomeItemDetailContent extends StatelessWidget {
 }
 
 // ============================================================================
-// Explore Tab Content
+// Explore Tab
 // ============================================================================
 
-class _ExploreTabContent extends StatelessWidget {
-  final Color accentColor;
-
-  const _ExploreTabContent({required this.accentColor});
+class ExploreTabScreen extends StatelessWidget {
+  const ExploreTabScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
     final localNavigator = FFRLocalNavigatorOutlet.of(context);
+    final accentColor = _AccentColorProvider.of(context);
 
     return GridView.count(
       crossAxisCount: 2,
@@ -312,14 +231,13 @@ class _ExploreTabContent extends StatelessWidget {
   }
 }
 
-class _ExploreCategoryContent extends StatelessWidget {
-  final Color accentColor;
-
-  const _ExploreCategoryContent({required this.accentColor});
+class ExploreCategoryScreen extends StatelessWidget {
+  const ExploreCategoryScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
     final localNavigator = FFRLocalNavigatorOutlet.of(context);
+    final accentColor = _AccentColorProvider.of(context);
 
     return ListView(
       children: [
@@ -358,17 +276,16 @@ class _ExploreCategoryContent extends StatelessWidget {
 }
 
 // ============================================================================
-// Profile Tab Content
+// Profile Tab
 // ============================================================================
 
-class _ProfileTabContent extends StatelessWidget {
-  final Color accentColor;
-
-  const _ProfileTabContent({required this.accentColor});
+class ProfileTabScreen extends StatelessWidget {
+  const ProfileTabScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
     final localNavigator = FFRLocalNavigatorOutlet.of(context);
+    final accentColor = _AccentColorProvider.of(context);
 
     return ListView(
       children: [
@@ -419,14 +336,13 @@ class _ProfileTabContent extends StatelessWidget {
   }
 }
 
-class _ProfileEditContent extends StatelessWidget {
-  final Color accentColor;
-
-  const _ProfileEditContent({required this.accentColor});
+class ProfileEditScreen extends StatelessWidget {
+  const ProfileEditScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
     final localNavigator = FFRLocalNavigatorOutlet.of(context);
+    final accentColor = _AccentColorProvider.of(context);
 
     return ListView(
       padding: const EdgeInsets.all(16),

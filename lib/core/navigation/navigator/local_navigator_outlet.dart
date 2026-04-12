@@ -5,69 +5,44 @@ import '../navigator/custom_navigator.dart';
 import '../parser/route_parser.dart';
 import 'local_navigator.dart';
 
-/// Widget that provides a local navigation context (outlet).
+/// Widget que fornece um contexto de navegação local (outlet).
 ///
-/// [FFRLocalNavigatorOutlet] creates and exposes an [FFRLocalNavigator]
-/// to its subtree via [InheritedWidget]. This enables nested routing
-/// within confined UI containers like bottom sheets or tab views.
+/// [FFRLocalNavigatorOutlet] cria e expõe um [FFRLocalNavigator]
+/// para a subtree via [InheritedWidget]. Isso permite navegação aninhada
+/// dentro de containers como bottom sheets ou tab views.
 ///
-/// The widget listens to changes in the local navigator stack and
-/// rebuilds accordingly, allowing child widgets to access the current
-/// route and render its content.
+/// O outlet renderiza o builder da rota atual e reconstrói quando a
+/// navegação local muda.
 ///
-/// Example usage in a bottom sheet route builder:
+/// Exemplo de uso dentro de uma rota bottomSheet:
 /// ```dart
-/// FFRRouteDefinition(
-///   id: '01BS',
-///   path: '/settings',
-///   routeType: FFRRouteType.bottomSheet,
-///   builder: (context, p, q) => FFRLocalNavigatorOutlet(
-///     initialRoute: '/settings/main',
-///     navigatorType: FFRRouteType.bottomSheet,
-///     builder: (context, localNavigator) {
-///       return LocalSettingsLayout(
-///         navigator: localNavigator,
-///         currentMatch: localNavigator.current,
-///       );
-///     },
-///   ),
+/// FFRLocalNavigatorOutlet(
+///   initialRoute: '/settings/main',
+///   navigatorType: FFRRouteType.bottomSheet,
+///   transitions: FFRPageTransitions.ios(),
 /// )
 /// ```
 ///
-/// Access the local navigator from child widgets:
+/// Acesso do child:
 /// ```dart
-/// final localNav = FFRLocalNavigator.of(context);
-/// localNav.pushNamed('/settings/privacy');
+/// FFRLocalNavigatorOutlet.of(context).pushNamed('/settings/privacy');
 /// ```
 class FFRLocalNavigatorOutlet extends StatefulWidget {
-  /// The initial route path for this local navigation context.
   final String initialRoute;
-
-  /// The type of local navigation (bottomSheet or tab).
   final FFRRouteType navigatorType;
-
-  /// Optional shared route parser. If not provided, uses the global
-  /// [FFRNavigator.I.parser].
   final FFRRouteParser? parser;
 
-  /// Builder that receives the local navigator and current match.
-  final Widget Function(
-    BuildContext context,
-    FFRLocalNavigator navigator,
-    FFRRouteMatch? currentMatch,
-  ) builder;
-
-  /// Creates a local navigation outlet widget.
+  /// Callback invoked when [pop(exitLocalNavigation: true)] is called.
   ///
-  /// The [builder] is called with the local navigator instance and the
-  /// current route match, allowing children to render based on the
-  /// local navigation state.
+  /// Use this to close the parent container (e.g., dismiss a bottom sheet).
+  final VoidCallback? onExitLocalNavigation;
+
   const FFRLocalNavigatorOutlet({
     super.key,
     this.initialRoute = '/',
     required this.navigatorType,
     this.parser,
-    required this.builder,
+    this.onExitLocalNavigation,
   }) : assert(
          navigatorType == FFRRouteType.bottomSheet ||
              navigatorType == FFRRouteType.tab,
@@ -78,38 +53,42 @@ class FFRLocalNavigatorOutlet extends StatefulWidget {
   State<FFRLocalNavigatorOutlet> createState() =>
       _FFRLocalNavigatorOutletState();
 
-  /// Retrieves the nearest [FFRLocalNavigator] from the widget tree.
-  ///
-  /// Throws an assertion error if called outside a
-  /// [FFRLocalNavigatorOutlet] subtree.
   static FFRLocalNavigator of(BuildContext context) {
     final inherited = context.dependOnInheritedWidgetOfExactType<
         _InheritedLocalNavigator>();
     assert(
       inherited != null,
-      'FFRLocalNavigator.of() called outside a FFRLocalNavigatorOutlet subtree.',
+      'FFRLocalNavigatorOutlet.of() called outside a FFRLocalNavigatorOutlet subtree.',
     );
     return inherited!.navigator;
   }
 
-  /// Retrieves the nearest [FFRRouteMatch] from the widget tree.
-  ///
-  /// Returns null if called outside a [FFRLocalNavigatorOutlet] subtree
-  /// or if the local stack is empty.
   static FFRRouteMatch? currentMatch(BuildContext context) {
     final inherited = context.dependOnInheritedWidgetOfExactType<
         _InheritedLocalNavigator>();
     return inherited?.currentMatch;
   }
+
+  /// Closes the local navigation container.
+  ///
+  /// Calls the [onExitLocalNavigation] callback if provided.
+  /// Use this from child widgets to dismiss the parent container
+  /// (e.g., dismiss a bottom sheet).
+  static void close(BuildContext context) {
+    final state = context.findAncestorStateOfType<
+        _FFRLocalNavigatorOutletState>();
+    state?._handleExit();
+  }
 }
 
-class _FFRLocalNavigatorOutletState extends State<FFRLocalNavigatorOutlet> {
+class _FFRLocalNavigatorOutletState extends State<FFRLocalNavigatorOutlet>
+    with TickerProviderStateMixin {
   late FFRLocalNavigator _navigator;
 
   @override
   void initState() {
     super.initState();
-    final parser = widget.parser ?? _globalParser;
+    final parser = widget.parser ?? FFRNavigator.I.parser;
     _navigator = FFRLocalNavigator(
       parser: parser,
       navigatorType: widget.navigatorType,
@@ -122,13 +101,15 @@ class _FFRLocalNavigatorOutletState extends State<FFRLocalNavigatorOutlet> {
   void didUpdateWidget(covariant FFRLocalNavigatorOutlet oldWidget) {
     super.didUpdateWidget(oldWidget);
 
-    if (oldWidget.parser != widget.parser ||
+    final needsRebuild = oldWidget.parser != widget.parser ||
         oldWidget.initialRoute != widget.initialRoute ||
-        oldWidget.navigatorType != widget.navigatorType) {
+        oldWidget.navigatorType != widget.navigatorType;
+
+    if (needsRebuild) {
       _navigator.removeListener(_onNavigatorChanged);
       _navigator.dispose();
 
-      final parser = widget.parser ?? _globalParser;
+      final parser = widget.parser ?? FFRNavigator.I.parser;
       _navigator = FFRLocalNavigator(
         parser: parser,
         navigatorType: widget.navigatorType,
@@ -146,22 +127,31 @@ class _FFRLocalNavigatorOutletState extends State<FFRLocalNavigatorOutlet> {
   }
 
   void _onNavigatorChanged() {
-    setState(() {});
+    if (mounted) setState(() {});
   }
 
-  FFRRouteParser get _globalParser {
-    return FFRNavigator.I.parser;
+  void _handleExit() {
+    widget.onExitLocalNavigation?.call();
   }
 
   @override
   Widget build(BuildContext context) {
     final currentMatch = _navigator.current;
+
+    if (currentMatch == null) {
+      return const SizedBox.shrink();
+    }
+
+    final child = currentMatch.route.builder!(
+      context,
+      currentMatch.pathParams,
+      currentMatch.queryParams,
+    );
+
     return _InheritedLocalNavigator(
       navigator: _navigator,
       currentMatch: currentMatch,
-      child: Builder(
-        builder: (innerContext) => widget.builder(innerContext, _navigator, currentMatch),
-      ),
+      child: child,
     );
   }
 }
