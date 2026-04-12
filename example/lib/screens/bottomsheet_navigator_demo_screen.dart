@@ -1,46 +1,49 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_full_router/flutter_full_router.dart';
+import '../custom_pages.dart';
 
 /// Demonstrates local navigation within a ModalBottomSheet.
 ///
-/// This screen renders a button that opens a bottom sheet with its own
-/// internal navigation stack using [FFRLocalNavigatorOutlet].
-class LocalNavigatorDemoScreen extends StatelessWidget {
-  const LocalNavigatorDemoScreen({super.key});
+/// Shows both default and custom styled bottom sheets with internal navigation.
+class BottomSheetNavigatorDemoScreen extends StatelessWidget {
+  const BottomSheetNavigatorDemoScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Local Navigator Demo'),
+        title: const Text('Bottom Sheet Navigator'),
       ),
-      body: Center(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            const Text(
-              'Local Navigation Examples',
-              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 16),
-            ElevatedButton.icon(
-              icon: const Icon(Icons.layers),
-              label: const Text('Open Bottom Sheet Navigator'),
-              onPressed: () => _openBottomSheetNavigator(context),
-            ),
-            const SizedBox(height: 16),
-            ElevatedButton.icon(
-              icon: const Icon(Icons.tab),
-              label: const Text('Open Tab Navigator'),
-              onPressed: () => FFRNavigator.I.pushNamed('/local-tabs'),
-            ),
-          ],
-        ),
+      body: ListView(
+        padding: const EdgeInsets.all(16),
+        children: [
+          const Text(
+            'Default BottomSheet',
+            style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+          ),
+          const SizedBox(height: 8),
+          ElevatedButton.icon(
+            icon: const Icon(Icons.layers),
+            label: const Text('Open Default BottomSheet'),
+            onPressed: () => _openDefaultBottomSheet(context),
+          ),
+          const SizedBox(height: 32),
+          const Text(
+            'Custom BottomSheet',
+            style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+          ),
+          const SizedBox(height: 8),
+          ElevatedButton.icon(
+            icon: const Icon(Icons.palette),
+            label: const Text('Open Custom BottomSheet'),
+            onPressed: () => _openCustomBottomSheet(context),
+          ),
+        ],
       ),
     );
   }
 
-  void _openBottomSheetNavigator(BuildContext context) {
+  void _openDefaultBottomSheet(BuildContext context) {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -50,7 +53,30 @@ class LocalNavigatorDemoScreen extends StatelessWidget {
           initialRoute: '/local-settings/main',
           navigatorType: FFRRouteType.bottomSheet,
           builder: (context, localNavigator, currentMatch) {
-            return _BottomSheetScaffold(
+            return _DefaultBottomSheetContent(
+              localNavigator: localNavigator,
+              currentMatch: currentMatch,
+            );
+          },
+        );
+      },
+    );
+  }
+
+  void _openCustomBottomSheet(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      useSafeArea: true,
+      backgroundColor: CustomDesignSystem.darkTheme.bottomSheetBackgroundColor,
+      shape: CustomDesignSystem.darkTheme.bottomSheetShape,
+      barrierColor: CustomDesignSystem.darkTheme.bottomSheetBarrierColor,
+      builder: (sheetContext) {
+        return FFRLocalNavigatorOutlet(
+          initialRoute: '/local-settings/main',
+          navigatorType: FFRRouteType.bottomSheet,
+          builder: (context, localNavigator, currentMatch) {
+            return _CustomBottomSheetContent(
               localNavigator: localNavigator,
               currentMatch: currentMatch,
             );
@@ -61,14 +87,48 @@ class LocalNavigatorDemoScreen extends StatelessWidget {
   }
 }
 
-class _BottomSheetScaffold extends StatelessWidget {
+// ============================================================================
+// Default BottomSheet Content
+// ============================================================================
+
+class _DefaultBottomSheetScaffold extends StatelessWidget {
   final FFRLocalNavigator localNavigator;
   final FFRRouteMatch? currentMatch;
 
-  const _BottomSheetScaffold({
+  const _DefaultBottomSheetScaffold({
     required this.localNavigator,
     required this.currentMatch,
   });
+
+  String _titleForRoute(String? path) {
+    switch (path) {
+      case '/local-settings/main':
+        return 'Settings';
+      case '/local-settings/profile':
+        return 'Profile Settings';
+      case '/local-settings/privacy':
+        return 'Privacy Settings';
+      case '/local-settings/notifications':
+        return 'Notification Settings';
+      default:
+        return 'Settings';
+    }
+  }
+
+  Widget _buildContent(BuildContext context, FFRRouteMatch? match) {
+    switch (match?.route.path) {
+      case '/local-settings/main':
+        return const _MainSettingsContent();
+      case '/local-settings/profile':
+        return const _ProfileSettingsContent();
+      case '/local-settings/privacy':
+        return const _PrivacySettingsContent();
+      case '/local-settings/notifications':
+        return const _NotificationSettingsContent();
+      default:
+        return const Center(child: Text('Unknown Settings Page'));
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -102,23 +162,56 @@ class _BottomSheetScaffold extends StatelessWidget {
         bottomNavigationBar: _BottomSheetNavBar(
           localNavigator: localNavigator,
           currentPath: currentMatch?.route.path,
+          isCustom: false,
         ),
       ),
     );
   }
+}
+
+class _DefaultBottomSheetContent extends StatelessWidget {
+  final FFRLocalNavigator localNavigator;
+  final FFRRouteMatch? currentMatch;
+
+  const _DefaultBottomSheetContent({
+    required this.localNavigator,
+    required this.currentMatch,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return _DefaultBottomSheetScaffold(
+      localNavigator: localNavigator,
+      currentMatch: currentMatch,
+    );
+  }
+}
+
+// ============================================================================
+// Custom BottomSheet Content
+// ============================================================================
+
+class _CustomBottomSheetScaffold extends StatelessWidget {
+  final FFRLocalNavigator localNavigator;
+  final FFRRouteMatch? currentMatch;
+
+  const _CustomBottomSheetScaffold({
+    required this.localNavigator,
+    required this.currentMatch,
+  });
 
   String _titleForRoute(String? path) {
     switch (path) {
       case '/local-settings/main':
-        return 'Settings';
+        return '⚙️ Settings';
       case '/local-settings/profile':
-        return 'Profile Settings';
+        return '👤 Profile';
       case '/local-settings/privacy':
-        return 'Privacy Settings';
+        return '🔒 Privacy';
       case '/local-settings/notifications':
-        return 'Notification Settings';
+        return '🔔 Notifications';
       default:
-        return 'Settings';
+        return '⚙️ Settings';
     }
   }
 
@@ -133,10 +226,80 @@ class _BottomSheetScaffold extends StatelessWidget {
       case '/local-settings/notifications':
         return const _NotificationSettingsContent();
       default:
-        return const Center(child: Text('Unknown Settings Page'));
+        return const Center(
+          child: Text(
+            'Unknown Settings Page',
+            style: TextStyle(color: Color(0xFFA6ADC8)),
+          ),
+        );
     }
   }
+
+  @override
+  Widget build(BuildContext context) {
+    return ConstrainedBox(
+      constraints: BoxConstraints(
+        maxHeight: MediaQuery.of(context).size.height * 0.75,
+      ),
+      child: Scaffold(
+        backgroundColor: CustomDesignSystem.darkTheme.bottomSheetBackgroundColor,
+        appBar: AppBar(
+          backgroundColor: CustomDesignSystem.darkTheme.bottomSheetBackgroundColor,
+          title: Text(
+            _titleForRoute(currentMatch?.route.path),
+            style: const TextStyle(color: Color(0xFFCDD6F4)),
+          ),
+          leading: IconButton(
+            icon: const Icon(Icons.close, color: Color(0xFFF38BA8)),
+            tooltip: 'Close',
+            onPressed: () {
+              final shouldExit = localNavigator.pop(exitLocalNavigation: true);
+              if (shouldExit) {
+                Navigator.of(context).pop();
+              }
+            },
+          ),
+          actions: [
+            if (localNavigator.canPop)
+              IconButton(
+                icon: const Icon(Icons.arrow_back, color: Color(0xFF89B4FA)),
+                tooltip: 'Back',
+                onPressed: () => localNavigator.pop(),
+              ),
+          ],
+        ),
+        body: _buildContent(context, currentMatch),
+        bottomNavigationBar: _BottomSheetNavBar(
+          localNavigator: localNavigator,
+          currentPath: currentMatch?.route.path,
+          isCustom: true,
+        ),
+      ),
+    );
+  }
 }
+
+class _CustomBottomSheetContent extends StatelessWidget {
+  final FFRLocalNavigator localNavigator;
+  final FFRRouteMatch? currentMatch;
+
+  const _CustomBottomSheetContent({
+    required this.localNavigator,
+    required this.currentMatch,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return _CustomBottomSheetScaffold(
+      localNavigator: localNavigator,
+      currentMatch: currentMatch,
+    );
+  }
+}
+
+// ============================================================================
+// Settings Content (Shared)
+// ============================================================================
 
 class _MainSettingsContent extends StatelessWidget {
   const _MainSettingsContent();
@@ -269,6 +432,10 @@ class _NotificationSettingsContent extends StatelessWidget {
   }
 }
 
+// ============================================================================
+// Shared Widgets
+// ============================================================================
+
 class _SettingsTile extends StatelessWidget {
   final IconData icon;
   final String title;
@@ -297,10 +464,12 @@ class _SettingsTile extends StatelessWidget {
 class _BottomSheetNavBar extends StatelessWidget {
   final FFRLocalNavigator localNavigator;
   final String? currentPath;
+  final bool isCustom;
 
   const _BottomSheetNavBar({
     required this.localNavigator,
     required this.currentPath,
+    this.isCustom = false,
   });
 
   @override

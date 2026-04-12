@@ -3,17 +3,15 @@ import 'package:flutter_full_router/flutter_full_router.dart';
 
 /// Demonstrates local navigation within a Tab-based interface.
 ///
-/// This screen uses [FFRLocalNavigatorOutlet] to provide independent
-/// navigation stacks for each tab.
-class LocalTabNavigatorScreen extends StatefulWidget {
-  const LocalTabNavigatorScreen({super.key});
+/// Each tab has its own independent navigation stack using [FFRLocalNavigatorOutlet].
+class TabNavigatorDemoScreen extends StatefulWidget {
+  const TabNavigatorDemoScreen({super.key});
 
   @override
-  State<LocalTabNavigatorScreen> createState() =>
-      _LocalTabNavigatorScreenState();
+  State<TabNavigatorDemoScreen> createState() => _TabNavigatorDemoScreenState();
 }
 
-class _LocalTabNavigatorScreenState extends State<LocalTabNavigatorScreen>
+class _TabNavigatorDemoScreenState extends State<TabNavigatorDemoScreen>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
 
@@ -33,12 +31,12 @@ class _LocalTabNavigatorScreenState extends State<LocalTabNavigatorScreen>
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Tab Navigator Example'),
+        title: const Text('Tab Navigator'),
         bottom: TabBar(
           controller: _tabController,
           tabs: const [
             Tab(icon: Icon(Icons.home), text: 'Home'),
-            Tab(icon: Icon(Icons.search), text: 'Explore'),
+            Tab(icon: Icon(Icons.explore), text: 'Explore'),
             Tab(icon: Icon(Icons.person), text: 'Profile'),
           ],
         ),
@@ -48,18 +46,18 @@ class _LocalTabNavigatorScreenState extends State<LocalTabNavigatorScreen>
         children: const [
           _TabNavigatorContent(
             initialRoute: '/local-tab/home',
-            icon: Icons.home,
-            color: Colors.blue,
+            accentColor: Colors.blue,
+            tabTitle: 'Home',
           ),
           _TabNavigatorContent(
             initialRoute: '/local-tab/explore',
-            icon: Icons.explore,
-            color: Colors.green,
+            accentColor: Colors.green,
+            tabTitle: 'Explore',
           ),
           _TabNavigatorContent(
             initialRoute: '/local-tab/profile',
-            icon: Icons.person,
-            color: Colors.purple,
+            accentColor: Colors.purple,
+            tabTitle: 'Profile',
           ),
         ],
       ),
@@ -69,13 +67,13 @@ class _LocalTabNavigatorScreenState extends State<LocalTabNavigatorScreen>
 
 class _TabNavigatorContent extends StatelessWidget {
   final String initialRoute;
-  final IconData icon;
-  final Color color;
+  final Color accentColor;
+  final String tabTitle;
 
   const _TabNavigatorContent({
     required this.initialRoute,
-    required this.icon,
-    required this.color,
+    required this.accentColor,
+    required this.tabTitle,
   });
 
   @override
@@ -88,7 +86,8 @@ class _TabNavigatorContent extends StatelessWidget {
         return _TabLocalNavigator(
           localNavigator: localNavigator,
           currentMatch: currentMatch,
-          accentColor: color,
+          accentColor: accentColor,
+          tabTitle: tabTitle,
         );
       },
     );
@@ -99,118 +98,92 @@ class _TabLocalNavigator extends StatelessWidget {
   final FFRLocalNavigator localNavigator;
   final FFRRouteMatch? currentMatch;
   final Color accentColor;
+  final String tabTitle;
 
   const _TabLocalNavigator({
     required this.localNavigator,
     required this.currentMatch,
     required this.accentColor,
+    required this.tabTitle,
   });
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: _buildContent(context, currentMatch),
-      bottomNavigationBar: _buildBottomNav(context),
+      body: _buildContent(context),
+      floatingActionButton: localNavigator.canPop
+          ? FloatingActionButton.extended(
+              onPressed: () => localNavigator.pop(),
+              icon: const Icon(Icons.arrow_back),
+              label: const Text('Back'),
+              backgroundColor: accentColor,
+            )
+          : null,
     );
   }
 
-  Widget _buildContent(BuildContext context, FFRRouteMatch? match) {
-    final path = match?.route.path;
-
-    if (path == null) {
-      return const Center(child: Text('No route matched'));
-    }
-
-    switch (path) {
-      case '/local-tab/home':
-        return _HomeTabContent(accentColor: accentColor);
-      case '/local-tab/home/item':
-        return _HomeItemDetailContent(accentColor: accentColor);
-      case '/local-tab/explore':
-        return _ExploreTabContent(accentColor: accentColor);
-      case '/local-tab/explore/category':
-        return _ExploreCategoryContent(accentColor: accentColor);
-      case '/local-tab/profile':
-        return _ProfileTabContent(accentColor: accentColor);
-      case '/local-tab/profile/edit':
-        return _ProfileEditContent(accentColor: accentColor);
-      default:
-        return Center(child: Text('Unknown: $path'));
-    }
-  }
-
-  Widget _buildBottomNav(BuildContext context) {
+  Widget _buildContent(BuildContext context) {
     final path = currentMatch?.route.path;
 
-    // Determine which nav items to show based on the tab
-    bool showExtraNav = false;
-    int currentIndex = 0;
-    List<BottomNavigationBarItem> items = const [];
-
-    if (path?.startsWith('/local-tab/home') == true) {
-      showExtraNav = true;
-      currentIndex = path == '/local-tab/home/item' ? 1 : 0;
-      items = const [
-        BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
-        BottomNavigationBarItem(
-          icon: Icon(Icons.list),
-          label: 'Item Detail',
+    if (path == null) {
+      return Center(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(Icons.help_outline, size: 64, color: accentColor),
+            const SizedBox(height: 16),
+            Text(
+              'No route matched in $tabTitle tab',
+              style: TextStyle(color: accentColor, fontSize: 18),
+            ),
+          ],
         ),
-      ];
-    } else if (path?.startsWith('/local-tab/explore') == true) {
-      showExtraNav = true;
-      currentIndex = path == '/local-tab/explore/category' ? 1 : 0;
-      items = const [
-        BottomNavigationBarItem(icon: Icon(Icons.explore), label: 'Explore'),
-        BottomNavigationBarItem(
-          icon: Icon(Icons.category),
-          label: 'Category',
-        ),
-      ];
-    } else if (path?.startsWith('/local-tab/profile') == true) {
-      showExtraNav = true;
-      currentIndex = path == '/local-tab/profile/edit' ? 1 : 0;
-      items = const [
-        BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Profile'),
-        BottomNavigationBarItem(icon: Icon(Icons.edit), label: 'Edit'),
-      ];
+      );
     }
 
-    if (!showExtraNav) {
-      return const SizedBox.shrink();
+    // Home tab routes
+    if (path == '/local-tab/home') {
+      return _HomeTabContent(accentColor: accentColor);
+    }
+    if (path == '/local-tab/home/item') {
+      return _HomeItemDetailContent(accentColor: accentColor);
     }
 
-    return BottomNavigationBar(
-      currentIndex: currentIndex,
-      onTap: (index) {
-        if (path?.startsWith('/local-tab/home') == true) {
-          if (index == 0) {
-            localNavigator.pushNamed('/local-tab/home');
-          } else {
-            localNavigator.pushNamed('/local-tab/home/item');
-          }
-        } else if (path?.startsWith('/local-tab/explore') == true) {
-          if (index == 0) {
-            localNavigator.pushNamed('/local-tab/explore');
-          } else {
-            localNavigator.pushNamed('/local-tab/explore/category');
-          }
-        } else if (path?.startsWith('/local-tab/profile') == true) {
-          if (index == 0) {
-            localNavigator.pushNamed('/local-tab/profile');
-          } else {
-            localNavigator.pushNamed('/local-tab/profile/edit');
-          }
-        }
-      },
-      items: items,
+    // Explore tab routes
+    if (path == '/local-tab/explore') {
+      return _ExploreTabContent(accentColor: accentColor);
+    }
+    if (path == '/local-tab/explore/category') {
+      return _ExploreCategoryContent(accentColor: accentColor);
+    }
+
+    // Profile tab routes
+    if (path == '/local-tab/profile') {
+      return _ProfileTabContent(accentColor: accentColor);
+    }
+    if (path == '/local-tab/profile/edit') {
+      return _ProfileEditContent(accentColor: accentColor);
+    }
+
+    return Center(
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(Icons.error_outline, size: 64, color: accentColor),
+          const SizedBox(height: 16),
+          Text(
+            'Unknown route: $path',
+            style: TextStyle(color: accentColor, fontSize: 18),
+          ),
+        ],
+      ),
     );
   }
 }
 
-// ---------------------------------------------------------------------------
+// ============================================================================
 // Home Tab Content
-// ---------------------------------------------------------------------------
+// ============================================================================
 
 class _HomeTabContent extends StatelessWidget {
   final Color accentColor;
@@ -282,14 +255,14 @@ class _HomeItemDetailContent extends StatelessWidget {
         const Padding(
           padding: EdgeInsets.symmetric(horizontal: 16),
           child: Text(
-            'This is a detailed view of an item. You can navigate back '
-            'using the bottom navigation or the back button.',
+            'This is a detailed view of an item. '
+            'Each tab maintains its own navigation stack.',
             style: TextStyle(fontSize: 16),
           ),
         ),
         const SizedBox(height: 16),
         Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16),
+          padding: const EdgeInsets.all(16),
           child: ElevatedButton.icon(
             onPressed: () => localNavigator.pop(),
             icon: const Icon(Icons.arrow_back),
@@ -301,9 +274,9 @@ class _HomeItemDetailContent extends StatelessWidget {
   }
 }
 
-// ---------------------------------------------------------------------------
+// ============================================================================
 // Explore Tab Content
-// ---------------------------------------------------------------------------
+// ============================================================================
 
 class _ExploreTabContent extends StatelessWidget {
   final Color accentColor;
@@ -316,12 +289,14 @@ class _ExploreTabContent extends StatelessWidget {
 
     return GridView.count(
       crossAxisCount: 2,
+      childAspectRatio: 1.2,
+      padding: const EdgeInsets.all(8),
+      mainAxisSpacing: 8,
+      crossAxisSpacing: 8,
       children: List.generate(8, (index) {
         return Card(
           child: InkWell(
-            onTap: () => localNavigator.pushNamed(
-              '/local-tab/explore/category',
-            ),
+            onTap: () => localNavigator.pushNamed('/local-tab/explore/category'),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
@@ -382,9 +357,9 @@ class _ExploreCategoryContent extends StatelessWidget {
   }
 }
 
-// ---------------------------------------------------------------------------
+// ============================================================================
 // Profile Tab Content
-// ---------------------------------------------------------------------------
+// ============================================================================
 
 class _ProfileTabContent extends StatelessWidget {
   final Color accentColor;

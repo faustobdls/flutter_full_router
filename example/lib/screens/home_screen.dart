@@ -40,9 +40,19 @@ class _HomeScreenState extends State<HomeScreen> {
             onPressed: () => FFRNavigator.I.pushNamed('/stack-clear-demo'),
           ),
           IconButton(
-            icon: const Icon(Icons.route),
-            tooltip: 'Local Navigator Demo',
-            onPressed: () => FFRNavigator.I.pushNamed('/local-navigator-demo'),
+            icon: const Icon(Icons.view_agenda),
+            tooltip: 'BottomSheet Demo',
+            onPressed: () => FFRNavigator.I.pushNamed('/bottomsheet-demo'),
+          ),
+          IconButton(
+            icon: const Icon(Icons.tab),
+            tooltip: 'Tab Demo',
+            onPressed: () => FFRNavigator.I.pushNamed('/tab-demo'),
+          ),
+          IconButton(
+            icon: const Icon(Icons.info),
+            tooltip: 'Dialog Demo',
+            onPressed: () => FFRNavigator.I.pushNamed('/dialog-demo'),
           ),
           IconButton(
             icon: const Icon(Icons.logout),
